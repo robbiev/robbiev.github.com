@@ -1,0 +1,58 @@
+body {
+  font-family: Georgia, serif;
+  font-size: 12pt;
+  margin: 0px;
+}
+
+.body {
+}
+
+.header {
+  background-color: #303546;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  box-shadow: 0px 0px 15px;
+  background-image: linear-gradient(bottom, rgb(68,79,117) 47%, rgb(40,43,53) 0%);
+  background-image: -o-linear-gradient(bottom, rgb(68,79,117) 47%, rgb(40,43,53) 0%);
+  background-image: -moz-linear-gradient(bottom, rgb(68,79,117) 47%, rgb(40,43,53) 0%);
+  background-image: -webkit-linear-gradient(bottom, rgb(68,79,117) 47%, rgb(40,43,53) 0%);
+  background-image: -ms-linear-gradient(bottom, rgb(68,79,117) 47%, rgb(40,43,53) 0%);
+
+  background-image: -webkit-gradient(
+  linear,
+  left bottom,
+  left top,
+  color-stop(0.47, rgb(68,79,117)),
+  color-stop(0, rgb(40,43,53))
+  );
+}
+
+.title {
+  margin: 0px 25px 0px 25px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12pt;
+  text-shadow: #333 2px 2px 4px;
+  color: white;
+}
+
+.blog {
+  margin: 25px 25px 25px 25px;
+  width: 50em;
+}
+
+.blog .date {
+  margin-top: 0.25em;
+}
+
+.blog .entry {
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 1em;
+  line-height: 1.3em;
+}
+
+h1 {
+  margin: 0px;
+  font-family: Arial, sans-serif;
+  font-size: 20pt;
+}
