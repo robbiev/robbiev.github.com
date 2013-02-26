@@ -2,6 +2,7 @@ var fs = require('fs'),
     eyes = require('eyes'),
     xml2js = require('xml2js'),
     moment = require('moment'),
+    path = require('path'),
     $ = require('cheerio'),
     _ = require('underscore');
 
@@ -33,11 +34,45 @@ var post = function (title, date, entry) {
 };
 
 desc('Generate all new blog posts.');
-task('default', function (params) {
+task('default', ['wp'], function (params) {
+  var indexEntries = '';
+  var entries = jake.readdirR('../blog_entries/');
+  entries = _.filter(entries, function(e) { return fs.statSync(e).isFile(); });
+  entries = _.map(entries, function(entry) { 
+    var blogFile = fs.readFileSync(entry).toString();
+    var blogAsArray = blogFile.split(/\n/);
+    return { file: entry, splitFile: blogAsArray };
+  });
+  entries = _.sortBy(entries, function(e) { return moment(e.splitFile[1], 'MMM D, YYYY').unix(); }).reverse();
+  _.each(entries, function(e) {
+    var entry = e.file;
+    var blogAsArray = e.splitFile;
+
+    var title = blogAsArray[0];
+    var date  = blogAsArray[1];
+    blogAsArray.shift();
+    blogAsArray.shift();
+    var blogContent = blogAsArray.join();
+    var content = post(title, date, blogContent);
+
+    var dir = __dirname + '/../' + path.basename(entry, '.html');
+    var file = dir + '/index.html';
+    jake.rmRf(dir);
+    jake.mkdirP(dir);
+    fs.appendFile(file, content, function (err) {
+      if (err) throw err;
+      console.log('wrote blog ' + title);
+    });
+    indexEntries += index_entry(title, date, path.basename(entry, '.html'));
+  });
+  var indexFile = fs.readFileSync('../index.html').toString();
+  var html = $.load(indexFile);
+  html('.home').prepend(indexEntries);
+  fs.writeFileSync('../index.html', html.html());
 });
 
 desc('Generate all wordpress blog posts.');
-task('wordpress', function (params) {
+task('wp', function (params) {
   var parser = new xml2js.Parser();
   jake.rmRf(__dirname + '/../2007');
   jake.rmRf(__dirname + '/../2008');
