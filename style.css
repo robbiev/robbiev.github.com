@@ -4,13 +4,15 @@ body {
   margin: 0px;
 }
 
+a {
+  text-decoration: none;
+}
+
 .body {
 }
 
 .header {
   background-color: #303546;
-  padding-top: 15px;
-  padding-bottom: 15px;
   box-shadow: 0px 0px 15px;
   background-image: linear-gradient(bottom, rgb(68,79,117) 47%, rgb(40,43,53) 0%);
   background-image: -o-linear-gradient(bottom, rgb(68,79,117) 47%, rgb(40,43,53) 0%);
@@ -35,7 +37,14 @@ body {
   color: white;
 }
 
-.blog {
+.title a {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  color: white;
+  display: block;
+}
+
+.blog, .home {
   margin: 25px 25px 25px 25px;
   width: 50em;
 }
@@ -51,8 +60,27 @@ body {
   line-height: 1.3em;
 }
 
+.home .date {
+  font-size: 11pt;
+  margin-top: 0.2em;
+  margin-bottom: 1.4em;
+}
+
+.home a:link {
+  color: black;
+}
+
+h1, h2 {
+  font-family: Arial, sans-serif;
+}
+
 h1 {
   margin: 0px;
-  font-family: Arial, sans-serif;
   font-size: 20pt;
 }
+
+.home h2 {
+  margin: 0px;
+  font-size: 16pt;
+}
+
