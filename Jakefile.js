@@ -32,16 +32,6 @@ var post = function (title, date, entry) {
   return html.html();
 };
 
-desc('blog post on home page');
-task('index-entry', function (params) {
-  console.log(index_entry('my awesome title', '12 Feb 2031'));
-});
-
-desc('blog post');
-task('post', function (params) {
-  console.log(post('my awesome title', '12 Feb 2031', 'blog post!'));
-});
-
 desc('Generate all wp blog posts.');
 task('wordpress', function (params) {
   var parser = new xml2js.Parser();
@@ -54,10 +44,7 @@ task('wordpress', function (params) {
   jake.rmRf(__dirname + '/2013');
 
   parser.on('end', function(result) {
-    //eyes.inspect(result.rss.channel[0].item);
-
     var to_inspect = _.filter(result.rss.channel[0].item, function(arr) {
-      //console.log(arr['wp:status']);
       return arr['wp:status'][0] === 'publish';
     });
 
@@ -70,12 +57,10 @@ task('wordpress', function (params) {
     var i = 0;
     var index_entries = "";
     _.each(sorted, function(entry) {
-      console.log(entry.title[0]);
       var content = entry["content:encoded"][0];
       var date = entry.pubDate[0];
       var asDate = moment(date, 'ddd, DD MMM YYYY HH:mm:ss Z');
       var dateString = asDate.utc().format('MMMM D, YYYY');
-      console.log(dateString);
       content = content.replace(/(\r\n|\n|\r)/gm, "<br/>");
       var post_name = entry["wp:post_name"][0];
 
@@ -90,7 +75,7 @@ task('wordpress', function (params) {
 
       var x = i++;
       
-      index_entries += index_entry(entry.title[0], dateString, loc + '/index.html');
+      index_entries += index_entry(entry.title[0], dateString, loc);
       fs.appendFile(__dirname + '/' + loc + '/' + 'index.html', blog, function (err) {
         if (err) throw err;
         console.log('wrote blog '+ post_name);
