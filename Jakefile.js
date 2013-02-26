@@ -107,7 +107,7 @@ task('wordpress', function (params) {
     console.log(result);
   });
 
-  fs.readFile(__dirname + '/blog.xml', function(err, data) {
+  fs.readFile(__dirname + '/../blog.xml', function(err, data) {
     parser.parseString(data);
   });
 });
