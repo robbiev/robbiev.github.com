@@ -8,6 +8,11 @@ a {
   text-decoration: none;
 }
 
+/* IE */
+img {  
+  border-style: none;
+}
+
 .body {
 }
 
