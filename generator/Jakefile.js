@@ -55,10 +55,8 @@ task('default', ['wp'], function (params) {
     var blogContent = blogAsArray.join();
     var content = post(title, date, blogContent);
 
-    var dir = __dirname + '/../' + path.basename(entry, '.html');
-    var file = dir + '/index.html';
-    jake.rmRf(dir);
-    jake.mkdirP(dir);
+    var file = __dirname + '/../' + path.basename(entry, '.html');
+    jake.rmRf(file);
     fs.appendFile(file, content, function (err) {
       if (err) throw err;
       console.log('wrote blog ' + title);
@@ -109,13 +107,13 @@ task('wp', function (params) {
 
       var blog = post(entry.title[0], dateString, content);
 
-      var loc = year + '/' + month + '/' + day + '/' + post_name;
+      var loc = year + '/' + month + '/' + day;
       jake.mkdirP('../'+loc);
 
       var x = i++;
       
-      index_entries += index_entry(entry.title[0], dateString, loc);
-      fs.appendFile(__dirname + '/../' + loc + '/' + 'index.html', blog, function (err) {
+      index_entries += index_entry(entry.title[0], dateString, loc + '/' + post_name);
+      fs.appendFile(__dirname + '/../' + loc + '/' + post_name + '.html', blog, function (err) {
         if (err) throw err;
         console.log('wrote blog '+ post_name);
       });
