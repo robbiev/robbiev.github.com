@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Press F3 to continue: initial thoughts on the JavaFX RIA platform</title>
+    <link rel="stylesheet" type="text/css" href="../../../../style.css">
+  </head>
+  <body>
+    <div class="body">
+      <div class="header">
+        <div class="title">
+          <a href="/">Robbie&#39;s Garbage, Collected.</a>
+        </div>
+      </div>
+      <div class="blog">
+        <h1>Press F3 to continue: initial thoughts on the JavaFX RIA platform</h1>
+        <div class="date">May 8, 2007</div>
+        <div class="entry">It all started with <a href="http://www.infoq.com/news/2007/05/javafx-script" title="Sun to Introduce JavaFX Mobile and JavaFX Script" target="_blank">this</a> InfoQ article. Apparently, Sun will announce an early version (alpha?) of <a href="http://www.sun.com/software/javafx/"><strong>JavaFX</strong></a> at <a href="http://sun.com/javaone" target="_blank">JavaOne</a>, an open source RIA platform that uses the <a href="http://blogs.sun.com/chrisoliver/resource/f3.html" title="F3 programming language">F3</a> scripting language and has a set of UI libraries and a programming model that would rival those of <a href="http://silverlight.net" title="Microsoft Silverlight">Silverlight</a> or <a href="http://www.flex.org" title="Adobe Flex" target="_blank">Flex</a>. The <a href="http://blogs.sun.com/chrisoliver/resource/f3.html" title="F3 programming language" target="_blank">F3 programming language</a> itself feels a bit like a mix of <a href="http://groovy.codehaus.org/" title="Groovy" target="_blank">Groovy</a> and Javascript 2 to me, but is looks like a powerful solution.<br><br>Of course it remains to be seen if it was really needed to have yet another programming language. Scrolling to the F3 spec, I can see one thing that they didn't get exactly right: integrated query syntax. I've seen some interviews and presentations on Microsoft's LINQ project recently, including the one Anders Hejlsberg gave at Mix 07. Someone in the audience asked "why do you guys put the from clause before the select clause?". The answer was simple: how would the IDE know how to help you if you start with the select clause? Select it from what? Subtle, but important. But it looks like a nice language, and the type inference thing is what I like to call "dynamic typing done right". And it has excellent Java interoperability, so there's a whole universe of libraries available to you. Check out <a href="http://blogs.sun.com/chrisoliver/category/F3">Chris Oliver's blog</a> for more info on F3.<br><br>Although JavaFX looks like a worthy addition to the Java platform, they'll have to get some important things right:<br><ul><br>	<li>Tooling support: GUI builder, IDE plugins for F3, ...</li><br>	<li>Excellent browser support: easy deployment and fast (Silverlight and Flex got this one right)</li><br></ul><br>I fear that Sun, as the "spec company", will only implement a part of that story, and will count on the community to complete the picture. Well, we all know that some things just need some company throwing some money at it to get the whole story. Including timing...<br><br>I guess I'm exited. Let's wait for the JavaOne announcement before we draw any conclusions (based on some rumors). But draw 'em we will ;-)<br><br><strong>Update:</strong> <a href="http://edtechdev.blogspot.com/2007/05/f3-is-now-javafx.html" target="_blank">this blog</a> links to some interesting stuff, including some hands-on exercises. Looks like they're using Java Web Start for deployment. Where's the browser integration?<br><br><strong>Update:</strong> added link to official JavaFX page, lots of info there. The IDE support is there, but they're using Java's mechanism for deployment (standalone, Web Start, Applet).</div>
+      </div>
+    </div>
+  </body>
+</html>
