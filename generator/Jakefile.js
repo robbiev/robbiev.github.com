@@ -32,16 +32,20 @@ var post = function (title, date, entry) {
   return html.html();
 };
 
-desc('Generate all wp blog posts.');
+desc('Generate all new blog posts.');
+task('default', function (params) {
+});
+
+desc('Generate all wordpress blog posts.');
 task('wordpress', function (params) {
   var parser = new xml2js.Parser();
-  jake.rmRf(__dirname + '/2007');
-  jake.rmRf(__dirname + '/2008');
-  jake.rmRf(__dirname + '/2009');
-  jake.rmRf(__dirname + '/2010');
-  jake.rmRf(__dirname + '/2011');
-  jake.rmRf(__dirname + '/2012');
-  jake.rmRf(__dirname + '/2013');
+  jake.rmRf(__dirname + '/../2007');
+  jake.rmRf(__dirname + '/../2008');
+  jake.rmRf(__dirname + '/../2009');
+  jake.rmRf(__dirname + '/../2010');
+  jake.rmRf(__dirname + '/../2011');
+  jake.rmRf(__dirname + '/../2012');
+  jake.rmRf(__dirname + '/../2013');
 
   parser.on('end', function(result) {
     var to_inspect = _.filter(result.rss.channel[0].item, function(arr) {
@@ -71,18 +75,18 @@ task('wordpress', function (params) {
       var blog = post(entry.title[0], dateString, content);
 
       var loc = year + '/' + month + '/' + day + '/' + post_name;
-      jake.mkdirP(loc);
+      jake.mkdirP('../'+loc);
 
       var x = i++;
       
       index_entries += index_entry(entry.title[0], dateString, loc);
-      fs.appendFile(__dirname + '/' + loc + '/' + 'index.html', blog, function (err) {
+      fs.appendFile(__dirname + '/../' + loc + '/' + 'index.html', blog, function (err) {
         if (err) throw err;
         console.log('wrote blog '+ post_name);
       });
     });
-    jake.rmRf(__dirname + '/index.html');
-    fs.appendFile(__dirname + '/index.html', index(index_entries), function (err) {
+    jake.rmRf(__dirname + '/../index.html');
+    fs.appendFile(__dirname + '/../index.html', index(index_entries), function (err) {
       if (err) throw err;
       console.log('wrote index');
     });
@@ -92,7 +96,7 @@ task('wordpress', function (params) {
     console.log(result);
   });
 
-  fs.readFile(__dirname + '/../blog.xml', function(err, data) {
+  fs.readFile(__dirname + '/../../blog.xml', function(err, data) {
     parser.parseString(data);
   });
 });
