@@ -1,4 +1,4 @@
-Migrating URLs from Wordpress to GitHub Pages
+Migrating URLs from WordPress to GitHub Pages
 February 27, 2013
 <p>
 For years my blog has been hosted on <a href="http://garbagecollected.wordpress.com">wordpress.com</a>. As you have probably guessed from this blog entry's title I chose to host my blog on <a href="http://pages.github.com">GitHub Pages</a> going forward.
@@ -6,22 +6,22 @@ For years my blog has been hosted on <a href="http://garbagecollected.wordpress.
 <p>
 I had the following goals for my blog migration:
 <ul>
-  <li>Generating Wordpress-compatible URLs</li>
+  <li>Generating WordPress-compatible URLs</li>
   <li>Optionally, having a migration path to a new URL naming scheme</li>
 </ul>
-The reason I'm even bothering to migrate old blog entries is that I want to be a good internet citizen. I always find it annoying when links break so I'll try to at least do my part. This means <b>migrating the content and generating URLs that are compatible</b> with Wordpress. Luckily I was already using a custom domain name, making it all possible.
+The reason I'm even bothering to migrate old blog entries is that I want to be a good internet citizen. I always find it annoying when links break so I'll try to at least do my part. This means <b>migrating the content and generating URLs that are compatible</b> with WordPress. Luckily I was already using a custom domain name, making it all possible.
 </p>
 <p>
-Wordpress URLs look like this:
+WordPress URLs look like this:
 <blockquote>http://garbagecollected.org/2008/04/06/dollarmaps/</blockquote>
 Targeting GitHub Pages you then have two options:
 <ol>
   <li>mkdir -p 2008/04/06; touch 2008/04/06/dollarmaps.html</li>
   <li>mkdir -p 2008/04/06/dollarmaps; touch 2008/04/06/dollarmaps/index.html</li>
 </ol>
-The first option <em>appears</em> to work at first; GitHub <a href="https://github.com/holman/feedback/issues/231">automatically finds</a> the '.html' file with the correct name and serves its contents. However, the show stopper for me is that this no longer works if you add a trailing slash, something which Wordpress always seems to do. So <a href="http://garbagecollected.org/2008/04/06/dollarmaps">http://garbagecollected.org/2008/04/06/dollarmaps</a> works, but <a href="http://garbagecollected.org/2008/04/06/dollarmaps/">http://garbagecollected.org/2008/04/06/dollarmaps/</a> doesn't. Not acceptable. This means that the only other option is to <b>create directories with an index.html</b>.
+The first option <em>appears</em> to work at first; GitHub <a href="https://github.com/holman/feedback/issues/231">automatically finds</a> the '.html' file with the correct name and serves its contents. However, the show stopper for me is that this no longer works if you add a trailing slash, something which WordPress always seems to do. So <a href="http://garbagecollected.org/2008/04/06/dollarmaps">http://garbagecollected.org/2008/04/06/dollarmaps</a> works, but <a href="http://garbagecollected.org/2008/04/06/dollarmaps/">http://garbagecollected.org/2008/04/06/dollarmaps/</a> doesn't. Not acceptable. This means that the only other option is to <b>create directories with an index.html</b>.
 </p>
 <p>
-Now what about changing the URL naming scheme? Well, it turns out this is not really possible using GitHub pages. You would normally issue an HTTP redirect, but that's not supported. So then you can either generate <a href="http://stackoverflow.com/questions/10178304/github-jekyll-old-pages-redirection-best-approach">placeholder pages</a> that redirect using JavaScript or the &lt;meta&gt; tag, or create a <a href="http://stackoverflow.com/questions/10178304/github-jekyll-old-pages-redirection-best-approach">custom 404 page</a> that does the same. These are all more of a hack; you'll need to start <a href="http://support.google.com/webmasters/bin/answer.py?hl=en&answer=139394">telling Google</a> that there is really only one page and things like that. For now I decided that new blog entries will follow the Wordpress naming scheme until I find an easier hosting solution than GitHub's Pages.
+Now what about changing the URL naming scheme? Well, it turns out this is not really possible using GitHub pages. You would normally issue an HTTP redirect, but that's not supported. So then you can either generate <a href="http://stackoverflow.com/questions/10178304/github-jekyll-old-pages-redirection-best-approach">placeholder pages</a> that redirect using JavaScript or the &lt;meta&gt; tag, or create a <a href="http://stackoverflow.com/questions/10178304/github-jekyll-old-pages-redirection-best-approach">custom 404 page</a> that does the same. These are all more of a hack; you'll need to start <a href="http://support.google.com/webmasters/bin/answer.py?hl=en&answer=139394">telling Google</a> that there is really only one page and things like that. For now I decided that new blog entries will follow the WordPress naming scheme until I find an easier hosting solution than GitHub's Pages.
 </p>
 
