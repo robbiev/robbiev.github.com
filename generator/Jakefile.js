@@ -34,7 +34,7 @@ var post = function (title, date, entry) {
 };
 
 desc('Generate all new blog posts.');
-task('default', ['wp'], function (params) {
+task('default', function (params) {
   var indexEntries = '';
   var entries = jake.readdirR('../blog_entries/');
   entries = _.filter(entries, function(e) { return fs.statSync(e).isFile(); });
@@ -54,14 +54,21 @@ task('default', ['wp'], function (params) {
     blogAsArray.shift();
     var blogContent = blogAsArray.join();
     var content = post(title, date, blogContent);
+    var asDate = moment(date, 'MMM D, YYYY');
+    var year = asDate.year();
+    var month = asDate.format('MM');
+    var day = asDate.format('DD');
+    var loc = year + '/' + month + '/' + day + '/' + path.basename(entry, '.html');
+    console.log(loc);
+    jake.rmRf('../'+loc);
+    jake.mkdirP('../'+loc);
 
-    var file = __dirname + '/../' + path.basename(entry, '.html');
-    jake.rmRf(file);
+    var file = '../'+loc + '/index.html';
     fs.appendFile(file, content, function (err) {
       if (err) throw err;
       console.log('wrote blog ' + title);
     });
-    indexEntries += index_entry(title, date, path.basename(entry, '.html'));
+    indexEntries += index_entry(title, date, loc);
   });
   var indexFile = fs.readFileSync('../index.html').toString();
   var html = $.load(indexFile);
@@ -107,13 +114,13 @@ task('wp', function (params) {
 
       var blog = post(entry.title[0], dateString, content);
 
-      var loc = year + '/' + month + '/' + day;
+      var loc = year + '/' + month + '/' + day + '/' + post_name;
       jake.mkdirP('../'+loc);
 
       var x = i++;
       
-      index_entries += index_entry(entry.title[0], dateString, loc + '/' + post_name);
-      fs.appendFile(__dirname + '/../' + loc + '/' + post_name + '.html', blog, function (err) {
+      index_entries += index_entry(entry.title[0], dateString, loc + '/');
+      fs.appendFile(__dirname + '/../' + loc + '/' + 'index.html', blog, function (err) {
         if (err) throw err;
         console.log('wrote blog '+ post_name);
       });
