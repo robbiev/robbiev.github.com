@@ -52,7 +52,7 @@ task('default', function (params) {
     var date  = blogAsArray[1];
     blogAsArray.shift();
     blogAsArray.shift();
-    var blogContent = blogAsArray.join();
+    var blogContent = blogAsArray.join('\n');
     var content = post(title, date, blogContent);
     var asDate = moment(date, 'MMM D, YYYY');
     var year = asDate.year();
