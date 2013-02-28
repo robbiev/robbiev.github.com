@@ -68,6 +68,10 @@ img {
   line-height: 1.3em;
 }
 
+.blog .footer {
+  margin-top: 2em;
+}
+
 .home .date {
   font-size: 11pt;
   margin-top: 0.2em;
