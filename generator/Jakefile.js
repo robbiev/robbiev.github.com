@@ -5,6 +5,11 @@ var fs = require('fs'),
     $ = require('cheerio'),
     _ = require('underscore');
 
+var baseLocation = '../';
+var blogLocation = '/../../blog.xml';
+var blogEntryLocation = baseLocation + 'blog_entries/';
+var dateFormat = 'MMMM D, YYYY';
+
 var indexEntry = function (title, date, path) {
   var indexEntry = fs.readFileSync('index-entry-template.html').toString()
   var html = $.load(indexEntry);
@@ -34,14 +39,22 @@ var post = function (title, date, entry) {
 desc('Generate all blog posts.');
 task('default', function (params) {
   var indexEntries = '';
-  var entries = jake.readdirR('../blog_entries/');
-  entries = _.filter(entries, function(e) { return fs.statSync(e).isFile(); });
+  var entries = jake.readdirR(blogEntryLocation);
+
+  entries = _.filter(entries, function(e) { 
+    return fs.statSync(e).isFile();
+  });
+
   entries = _.map(entries, function(entry) { 
     var blogFile = fs.readFileSync(entry).toString();
     var blogAsArray = blogFile.split(/\n/);
     return { file: entry, splitFile: blogAsArray };
   });
-  entries = _.sortBy(entries, function(e) { return moment(e.splitFile[1], 'MMM D, YYYY').unix(); }).reverse();
+
+  entries = _.sortBy(entries, function(e) {
+    return moment(e.splitFile[1], dateFormat).unix();
+  }).reverse();
+
   _.each(entries, function(e) {
     var entry = e.file;
     var blogAsArray = e.splitFile;
@@ -50,24 +63,28 @@ task('default', function (params) {
     var date  = blogAsArray[1];
     blogAsArray.shift();
     blogAsArray.shift();
+
     var blogContent = blogAsArray.join('\n');
     var content = post(title, date, blogContent);
-    var asDate = moment(date, 'MMM D, YYYY');
+
+    var asDate = moment(date, dateFormat);
     var year = asDate.year();
     var month = asDate.format('MM');
     var day = asDate.format('DD');
     var loc = year + '/' + month + '/' + day + '/' + path.basename(entry, '.html');
     console.log(loc);
-    jake.rmRf('../'+loc);
-    jake.mkdirP('../'+loc);
-    var file = '../'+loc + '/index.html';
+
+    jake.rmRf(baseLocation+loc);
+    jake.mkdirP(baseLocation+loc);
+    var file = baseLocation + loc + '/index.html';
     fs.writeFileSync(file, content);
     console.log('wrote blog ' + title);
+
     indexEntries += indexEntry(title, date, loc + '/');
   });
   var indexHtml = index(indexEntries);
-  jake.rmRf(__dirname + '/../index.html');
-  fs.writeFileSync('../index.html', indexHtml);
+  jake.rmRf(baseLocation + 'index.html');
+  fs.writeFileSync(baseLocation + 'index.html', indexHtml);
 });
 
 desc('Generate blog entries from WordPress XML.');
@@ -91,7 +108,7 @@ task('wp', function (params) {
       var content = entry["content:encoded"][0];
       var date = entry.pubDate[0];
       var asDate = moment(date, 'ddd, DD MMM YYYY HH:mm:ss Z');
-      var dateString = asDate.utc().format('MMMM D, YYYY');
+      var dateString = asDate.utc().format(dateFormat);
       content = content.replace(/(\r\n|\n|\r)/gm, "<br/>");
       var post_name = entry["wp:post_name"][0];
 
@@ -102,7 +119,7 @@ task('wp', function (params) {
       var blog = post(entry.title[0], dateString, content);
 
       var to_write = entry.title[0] + '\n' + dateString + '\n' + content;
-      var fileToWrite = '../blog_entries/' + post_name + '.html';
+      var fileToWrite = blogEntryLocation + post_name + '.html';
       jake.rmRf(fileToWrite);
       fs.writeFileSync(fileToWrite, to_write);
     });
@@ -112,7 +129,7 @@ task('wp', function (params) {
     console.log(result);
   });
 
-  fs.readFile(__dirname + '/../../blog.xml', function(err, data) {
+  fs.readFile(__dirname + blogLocation, function(err, data) {
     parser.parseString(data);
   });
 });
