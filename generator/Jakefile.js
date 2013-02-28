@@ -1,13 +1,11 @@
 var fs = require('fs'),
-    eyes = require('eyes'),
     xml2js = require('xml2js'),
     moment = require('moment'),
     path = require('path'),
     $ = require('cheerio'),
     _ = require('underscore');
 
-
-var index_entry = function (title, date, path) {
+var indexEntry = function (title, date, path) {
   var indexEntry = fs.readFileSync('index-entry-template.html').toString()
   var html = $.load(indexEntry);
   html('a').text(title);
@@ -33,7 +31,7 @@ var post = function (title, date, entry) {
   return html.html();
 };
 
-desc('Generate all new blog posts.');
+desc('Generate all blog posts.');
 task('default', function (params) {
   var indexEntries = '';
   var entries = jake.readdirR('../blog_entries/');
@@ -62,30 +60,19 @@ task('default', function (params) {
     console.log(loc);
     jake.rmRf('../'+loc);
     jake.mkdirP('../'+loc);
-
     var file = '../'+loc + '/index.html';
-    fs.appendFile(file, content, function (err) {
-      if (err) throw err;
-      console.log('wrote blog ' + title);
-    });
-    indexEntries += index_entry(title, date, loc);
+    fs.writeFileSync(file, content);
+    console.log('wrote blog ' + title);
+    indexEntries += indexEntry(title, date, loc + '/');
   });
-  var indexFile = fs.readFileSync('../index.html').toString();
-  var html = $.load(indexFile);
-  html('.home').prepend(indexEntries);
-  fs.writeFileSync('../index.html', html.html());
+  var indexHtml = index(indexEntries);
+  jake.rmRf(__dirname + '/../index.html');
+  fs.writeFileSync('../index.html', indexHtml);
 });
 
-desc('Generate all wordpress blog posts.');
+desc('Generate blog entries from WordPress XML.');
 task('wp', function (params) {
   var parser = new xml2js.Parser();
-  jake.rmRf(__dirname + '/../2007');
-  jake.rmRf(__dirname + '/../2008');
-  jake.rmRf(__dirname + '/../2009');
-  jake.rmRf(__dirname + '/../2010');
-  jake.rmRf(__dirname + '/../2011');
-  jake.rmRf(__dirname + '/../2012');
-  jake.rmRf(__dirname + '/../2013');
 
   parser.on('end', function(result) {
     var to_inspect = _.filter(result.rss.channel[0].item, function(arr) {
@@ -114,21 +101,10 @@ task('wp', function (params) {
 
       var blog = post(entry.title[0], dateString, content);
 
-      var loc = year + '/' + month + '/' + day + '/' + post_name;
-      jake.mkdirP('../'+loc);
-
-      var x = i++;
-      
-      index_entries += index_entry(entry.title[0], dateString, loc + '/');
-      fs.appendFile(__dirname + '/../' + loc + '/' + 'index.html', blog, function (err) {
-        if (err) throw err;
-        console.log('wrote blog '+ post_name);
-      });
-    });
-    jake.rmRf(__dirname + '/../index.html');
-    fs.appendFile(__dirname + '/../index.html', index(index_entries), function (err) {
-      if (err) throw err;
-      console.log('wrote index');
+      var to_write = entry.title[0] + '\n' + dateString + '\n' + content;
+      var fileToWrite = '../blog_entries/' + post_name + '.html';
+      jake.rmRf(fileToWrite);
+      fs.writeFileSync(fileToWrite, to_write);
     });
   });
 
