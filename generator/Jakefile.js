@@ -8,7 +8,9 @@ var fs = require('fs'),
 var baseLocation = '../';
 var blogLocation = '/../../blog.xml';
 var blogEntryLocation = baseLocation + 'blog_entries/';
+var indexLocation = baseLocation + 'index.html';
 var dateFormat = 'MMMM D, YYYY';
+var wpDateFormat = 'ddd, DD MMM YYYY HH:mm:ss Z';
 
 var indexEntry = function (title, date, path) {
   var indexEntry = fs.readFileSync('index-entry-template.html').toString()
@@ -61,8 +63,7 @@ task('default', function (params) {
 
     var title = blogAsArray[0];
     var date  = blogAsArray[1];
-    blogAsArray.shift();
-    blogAsArray.shift();
+    blogAsArray.splice(0, 2);
 
     var blogContent = blogAsArray.join('\n');
     var content = post(title, date, blogContent);
@@ -83,8 +84,8 @@ task('default', function (params) {
     indexEntries += indexEntry(title, date, loc + '/');
   });
   var indexHtml = index(indexEntries);
-  jake.rmRf(baseLocation + 'index.html');
-  fs.writeFileSync(baseLocation + 'index.html', indexHtml);
+  jake.rmRf(indexLocation);
+  fs.writeFileSync(indexLocation, indexHtml);
 });
 
 desc('Generate blog entries from WordPress XML.');
@@ -96,30 +97,20 @@ task('wp', function (params) {
       return arr['wp:status'][0] === 'publish';
     });
 
-    var sorted = _.sortBy(to_inspect, function(entry) {
-      var date = entry.pubDate[0];
-      var asDate = moment(date, 'ddd, DD MMM YYYY HH:mm:ss Z');
-      return asDate.utc().unix();
-    }).reverse();
-
     var i = 0;
     var index_entries = "";
-    _.each(sorted, function(entry) {
-      var content = entry["content:encoded"][0];
+    _.each(to_inspect, function(entry) {
       var date = entry.pubDate[0];
-      var asDate = moment(date, 'ddd, DD MMM YYYY HH:mm:ss Z');
+      var asDate = moment(date, wpDateFormat);
       var dateString = asDate.utc().format(dateFormat);
+
+      var content = entry["content:encoded"][0];
       content = content.replace(/(\r\n|\n|\r)/gm, "<br/>");
-      var post_name = entry["wp:post_name"][0];
-
-      var year = asDate.utc().year();
-      var month = asDate.utc().format('MM');
-      var day = asDate.utc().format('DD');
-
-      var blog = post(entry.title[0], dateString, content);
-
       var to_write = entry.title[0] + '\n' + dateString + '\n' + content;
+
+      var post_name = entry["wp:post_name"][0];
       var fileToWrite = blogEntryLocation + post_name + '.html';
+
       jake.rmRf(fileToWrite);
       fs.writeFileSync(fileToWrite, to_write);
     });
