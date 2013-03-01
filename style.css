@@ -13,6 +13,10 @@ img {
   border-style: none;
 }
 
+blockquote {
+  font-style: italic;
+}
+
 .body {
 }
 
