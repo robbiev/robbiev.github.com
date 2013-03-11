@@ -17,6 +17,10 @@ blockquote {
   font-style: italic;
 }
 
+pre, code {
+  font-family: Menlo, Consolas, Monaco, Inconsolata, "Courier New", monospace;
+}
+
 .body {
 }
 
