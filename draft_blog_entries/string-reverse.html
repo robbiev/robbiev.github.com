@@ -1,0 +1,25 @@
+String Reverse
+March 14, 2013
+
+After my last job ended in February, I now started thinking about all the pain
+I'll have to go through interviewing for a new one. Writing yet another string
+reversal function. 
+
+  public static String reverseUnicode(String source, Locale locale) {
+    BreakIterator boundary = BreakIterator.getCharacterInstance(locale);
+    boundary.setText(source);
+
+    char[] reversedChars = new char[source.length()];
+
+    int end = boundary.last();
+    for (int start = boundary.previous(), index = 0;
+         start != BreakIterator.DONE;
+         end = start, start = boundary.previous()) {
+      for(int i = start; i < end; i++) {
+        reversedChars[index] = source.charAt(i);
+        index++;
+      }
+    }
+
+    return String.valueOf(reversedChars);
+  }
