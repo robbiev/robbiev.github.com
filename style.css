@@ -26,9 +26,9 @@ table {
 }
 
 table, td, th {
-  border-collapse:collapse;
+  border-collapse: collapse;
   border: 1px solid black;
-  vertical-align:middle;
+  vertical-align: middle;
   text-align: center;
   padding: 5px;
 }
