@@ -107,9 +107,9 @@ task('default', function (params) {
   var sortedIndexEntries = _.sortBy(indexEntries, function(e) {
     return e.timestamp
   }).reverse();
-  
+
   // generate index.html
-  var indexHtml = index(_.pluck(sortedIndexEntries, 'html'));
+  var indexHtml = index(_.pluck(sortedIndexEntries, 'html').join(''));
 
   // write index.html
   jake.rmRf(indexLocation);
