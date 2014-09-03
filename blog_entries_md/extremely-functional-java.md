@@ -69,7 +69,7 @@ class LightOps {
 
 Now what if we wanted to try different audio processing algorithms? Or test the toggling code in isolation? We can't. **The dependency on the `ClapDetector` has been hard-coded**. The only way to really solve this problem pre Java 8 is to switch back to using class instances and interfaces. It is possible to write in a functional style this way, but it is much harder; the temptation to add some "state" here and there will be great. Every function (methods in this case) would also have invisible parameters from the get-go: the instance fields of the surrounding class (dependencies, like `ClapDetector`).
 
-Noticed how I sneakily said *pre Java 8*. After using it for a month or so, I realised that the new **[default methods](http://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html) feature is transforming interfaces into ideal holders of functions**. They still can't hold instance data, but now they can hold method implementations. This pretty much transforms interface methods into functions. Also the combination of interface multiple inheritance and default methods turns out to be pretty powerful. Back to the example:
+Noticed how I sneakily said *pre Java 8*. After using it for a month or so, I realised that the new **[default methods](http://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html) feature is transforming interfaces into excellent holders of functions**. They still can't hold instance data, but now they can hold method implementations. This pretty much transforms interface methods into functions. Also the combination of interface multiple inheritance and default methods turns out to be pretty powerful. Back to the example:
 
 ```java
 interface ClapDetector {
