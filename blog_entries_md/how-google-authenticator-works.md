@@ -2,7 +2,7 @@ How Google Authenticator Works
 September 14, 2014
 **TL;DR** example code [here](https://github.com/robbiev/two-factor-auth).
 
-Most people use [Google Authenticator](https://code.google.com/p/google-authenticator/) to generate two-factor authentication (2FA) tokens on their phone, with [Authy](https://www.authy.com/) as a recent alternative. What's cool is that any service can make use of these apps as long as they are compatible. But what does it mean to be compatible? **How do these apps work?**
+Most people use [Google Authenticator](https://code.google.com/p/google-authenticator/) to generate two-factor authentication (2FA) tokens on their phone, with [Authy](https://www.authy.com/) as a recent alternative. What's cool is that any service can make use of these apps as long as it is compatible. But what does it mean to be compatible? **How do these apps work?**
 
 Apps like Google Authenticator implements the **[Time-Based One-Time Password (TOTP)](http://tools.ietf.org/html/rfc6238) algorithm**. It has the following ingredients:
 
