@@ -44,7 +44,7 @@
 <p>More specifically the server will actually compare submitted tokens to all tokens generated for a window of time (e.g. a couple of minutes) to account for the time it takes for you to type the token and send it to the server.</p>
 <h2 id="signing-function">Signing Function</h2>
 <p>The <strong>signing function used is HMAC-SHA1</strong>. HMAC stands for <em><a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code">Hash-based message authentication code</a></em> and it is an algorithm that uses a secure one-way hash function (<a href="https://en.wikipedia.org/wiki/SHA-1">SHA1</a> in this case) to sign a value. Using an HMAC allows us to verify authenticity - only people knowing the secret can generate the same output for the same input (the current time). This all sounds complex but <strong>the algorithm is very simple</strong> (<a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code">details omitted</a>):</p>
-<pre><code>hmac = SHA1(secret, SHA1(secret + input))
+<pre><code>hmac = SHA1(secret + SHA1(secret + input))
 </code></pre><p>As an aside TOTP is in fact a superset of HOTP or <em><a href="https://tools.ietf.org/html/rfc4226">HMAC-Based One-Time Password Algorithm</a></em> - they are the same thing except that TOTP specifies that the current time is used as the input value while HOTP simply uses an incrementing counter that needs to be synchronized.</p>
 <h2 id="algorithm">Algorithm</h2>
 <p><strong>First we&#39;ll need to base32 decode the secret</strong>. Google presents it with spaces and in lowercase to make it easier to grok for humans, but base32 actually does not allow spaces and only allows uppercase letters. Thus:</p>
@@ -58,7 +58,7 @@ secret = BASE32_DECODE(TO_UPPERCASE(REMOVE_SPACES(original_secret)))
 <pre><code>original_secret = xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
 secret = BASE32_DECODE(TO_UPPERCASE(REMOVE_SPACES(original_secret)))
 input = CURRENT_UNIX_TIME() / 30
-hmac = SHA1(secret, SHA1(secret + input))
+hmac = SHA1(secret + SHA1(secret + input))
 </code></pre><p>Now, we could be done here as what we have so far will provide effective 2FA. However the resulting HMAC value is a standard-length SHA1 value (20 bytes, 40 hex characters) and nobody wants to type 40 characters. <strong>We want to those pretty 6-digit numbers!</strong></p>
 <p>To convert the 20-byte SHA1 to a 6-digit number we&#39;ll first slim it down a bit. We will use the last 4 bits of the SHA1 (a value ranging from 0-15) to index into the 20-byte value and use the next 4 bytes at that index. The maximum potential value of this indexing operation is 15 + 4 = 19, which is also the maximum index possible (remember, zero-based) so that will always work. So anyway, we get those 4 bytes:</p>
 <pre><code>four_bytes = hmac[LAST_BYTE(hmac):LAST_BYTE(hmac) + 4]
@@ -71,7 +71,7 @@ small_integer = large_integer % 1,000,000
 <pre><code>original_secret = xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
 secret = BASE32_DECODE(TO_UPPERCASE(REMOVE_SPACES(original_secret)))
 input = CURRENT_UNIX_TIME() / 30
-hmac = SHA1(secret, SHA1(secret + input))
+hmac = SHA1(secret + SHA1(secret + input))
 four_bytes = hmac[LAST_BYTE(hmac):LAST_BYTE(hmac) + 4]
 large_integer = INT(four_bytes)
 small_integer = large_integer % 1,000,000

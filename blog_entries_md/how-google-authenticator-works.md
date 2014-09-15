@@ -36,7 +36,7 @@ More specifically the server will actually compare submitted tokens to all token
 The **signing function used is HMAC-SHA1**. HMAC stands for *[Hash-based message authentication code](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code)* and it is an algorithm that uses a secure one-way hash function ([SHA1](https://en.wikipedia.org/wiki/SHA-1) in this case) to sign a value. Using an HMAC allows us to verify authenticity - only people knowing the secret can generate the same output for the same input (the current time). This all sounds complex but **the algorithm is very simple** ([details omitted](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code)):
 
 ```
-hmac = SHA1(secret, SHA1(secret + input))
+hmac = SHA1(secret + SHA1(secret + input))
 ```
 
 As an aside TOTP is in fact a superset of HOTP or *[HMAC-Based One-Time Password Algorithm](https://tools.ietf.org/html/rfc4226)* - they are the same thing except that TOTP specifies that the current time is used as the input value while HOTP simply uses an incrementing counter that needs to be synchronized.
@@ -68,7 +68,7 @@ input = CURRENT_UNIX_TIME() / 30
 original_secret = xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
 secret = BASE32_DECODE(TO_UPPERCASE(REMOVE_SPACES(original_secret)))
 input = CURRENT_UNIX_TIME() / 30
-hmac = SHA1(secret, SHA1(secret + input))
+hmac = SHA1(secret + SHA1(secret + input))
 ```
 
 Now, we could be done here as what we have so far will provide effective 2FA. However the resulting HMAC value is a standard-length SHA1 value (20 bytes, 40 hex characters) and nobody wants to type 40 characters. **We want to those pretty 6-digit numbers!**
@@ -98,7 +98,7 @@ This is our final value. Here's everything together:
 original_secret = xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
 secret = BASE32_DECODE(TO_UPPERCASE(REMOVE_SPACES(original_secret)))
 input = CURRENT_UNIX_TIME() / 30
-hmac = SHA1(secret, SHA1(secret + input))
+hmac = SHA1(secret + SHA1(secret + input))
 four_bytes = hmac[LAST_BYTE(hmac):LAST_BYTE(hmac) + 4]
 large_integer = INT(four_bytes)
 small_integer = large_integer % 1,000,000
