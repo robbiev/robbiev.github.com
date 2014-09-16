@@ -21,6 +21,12 @@ pre, code {
   font-family: Menlo, Consolas, Monaco, Inconsolata, "Courier New", monospace;
 }
 
+pre {
+  padding: 5px;
+  background: #fafafa;
+  border: 1px solid #ccc;
+}
+
 table {
   margin: 30px 0px 30px 15px;
 }
