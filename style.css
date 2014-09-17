@@ -25,6 +25,7 @@ pre {
   padding: 5px;
   background: #fafafa;
   border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 table {
