@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>How Google Authenticator Works</title>
     <link rel="stylesheet" type="text/css" href="/style.css">
@@ -19,14 +20,14 @@
     <div class="body">
       <div class="header">
         <div class="title">
-          <a href="/">Robbie&#39;s Garbage, Collected.</a>
+          <a href="/">Robbie&apos;s Garbage, Collected.</a>
         </div>
       </div>
       <div class="blog">
         <h1>How Google Authenticator Works</h1>
         <div class="date">September 14, 2014</div>
         <div class="entry"><p><strong>TL;DR</strong> example code <a href="https://github.com/robbiev/two-factor-auth">here</a>.</p>
-<p>Most people use <a href="https://code.google.com/p/google-authenticator/">Google Authenticator</a> to generate two-factor authentication (2FA) tokens on their phone, with <a href="https://www.authy.com/">Authy</a> as a recent alternative. What&#39;s cool is that any service can make use of these apps as long as it is compatible. But what does it mean to be compatible? <strong>How do these apps work?</strong></p>
+<p>Most people use <a href="https://code.google.com/p/google-authenticator/">Google Authenticator</a> to generate two-factor authentication (2FA) tokens on their phone, with <a href="https://www.authy.com/">Authy</a> as a recent alternative. What&apos;s cool is that any service can make use of these apps as long as it is compatible. But what does it mean to be compatible? <strong>How do these apps work?</strong></p>
 <p>Apps like Google Authenticator implement the <strong><a href="http://tools.ietf.org/html/rfc6238">Time-Based One-Time Password (TOTP)</a> algorithm</strong>. It has the following ingredients:</p>
 <ul>
 <li>A <strong>shared secret</strong> (a sequence of bytes)</li>
@@ -35,24 +36,24 @@
 </ul>
 <h2 id="shared-secret">Shared Secret</h2>
 <p>The <strong>shared secret</strong> is what you need to obtain to set up the account on your phone. Either you take a photo of a <a href="https://en.wikipedia.org/wiki/QR_code">QR</a> code using your phone or you can enter the secret manually. Because not all byte values are displayable characters <strong>the secret is base32-encoded</strong> (<a href="https://en.wikipedia.org/wiki/Base32#Advantages">why not base64?</a>).</p>
-<p>For manual entry Google&#39;s services present this secret has the following format: </p>
+<p>For manual entry Google&apos;s services present this secret has the following format: </p>
 <pre><code>xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
 </code></pre><p>This value is 256 bits but can be smaller for other services. The QR code contains this same token as a URL: </p>
 <pre><code>otpauth://totp/Google%3Ayourname@gmail.com?secret=xxxx&amp;issuer=Google
 </code></pre><h2 id="input-current-time-">Input (Current Time)</h2>
-<p>The <strong>input</strong> time value you&#39;ll simply get from your phone, no further interaction with the server is required once you have obtained the secret. However it is <strong>important that your phone&#39;s time is accurate</strong> as the server will essentially repeat what happens on your phone using the current time as known by the server. </p>
+<p>The <strong>input</strong> time value you&apos;ll simply get from your phone, no further interaction with the server is required once you have obtained the secret. However it is <strong>important that your phone&apos;s time is accurate</strong> as the server will essentially repeat what happens on your phone using the current time as known by the server. </p>
 <p>More specifically the server will actually compare submitted tokens to all tokens generated for a window of time (e.g. a couple of minutes) to account for the time it takes for you to type the token and send it to the server.</p>
 <h2 id="signing-function">Signing Function</h2>
 <p>The <strong>signing function used is HMAC-SHA1</strong>. HMAC stands for <em><a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code">Hash-based message authentication code</a></em> and it is an algorithm that uses a secure one-way hash function (<a href="https://en.wikipedia.org/wiki/SHA-1">SHA1</a> in this case) to sign a value. Using an HMAC allows us to verify authenticity - only people knowing the secret can generate the same output for the same input (the current time). This all sounds complex but <strong>the algorithm is very simple</strong> (<a href="https://en.wikipedia.org/wiki/Hash-based_message_authentication_code">details omitted</a>):</p>
 <pre><code>hmac = SHA1(secret + SHA1(secret + input))
 </code></pre><p>As an aside TOTP is in fact a superset of HOTP or <em><a href="https://tools.ietf.org/html/rfc4226">HMAC-Based One-Time Password Algorithm</a></em> - they are the same thing except that TOTP specifies that the current time is used as the input value while HOTP simply uses an incrementing counter that needs to be synchronized.</p>
 <h2 id="algorithm">Algorithm</h2>
-<p><strong>First we&#39;ll need to base32 decode the secret</strong>. Google presents it with spaces and in lowercase to make it easier to grok for humans, but base32 actually does not allow spaces and only allows uppercase letters. Thus:</p>
+<p><strong>First we&apos;ll need to base32 decode the secret</strong>. Google presents it with spaces and in lowercase to make it easier to grok for humans, but base32 actually does not allow spaces and only allows uppercase letters. Thus:</p>
 <pre><code>original_secret = xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
 secret = BASE32_DECODE(TO_UPPERCASE(REMOVE_SPACES(original_secret)))
-</code></pre><p><strong>Next we derive the input from the current time</strong>, for this we&#39;ll use <a href="https://en.wikipedia.org/wiki/Unix_time">UNIX time</a>, or the amount of seconds since the epoch:</p>
+</code></pre><p><strong>Next we derive the input from the current time</strong>, for this we&apos;ll use <a href="https://en.wikipedia.org/wiki/Unix_time">UNIX time</a>, or the amount of seconds since the epoch:</p>
 <pre><code>input = CURRENT_UNIX_TIME()
-</code></pre><p>One thing you have probably noticed in Google Authenticator is that codes are valid for some time before changing to the next value. If the value would change every second it would be a bit difficult to copy, after all. This value defaults to 30 seconds, we can simply do an integer divide by 30 to get a value that will remain stable in a 30 second time window. We don&#39;t really care if the value has a particular scale, as long as the value is reproducible on both sides.</p>
+</code></pre><p>One thing you have probably noticed in Google Authenticator is that codes are valid for some time before changing to the next value. If the value would change every second it would be a bit difficult to copy, after all. This value defaults to 30 seconds, we can simply do an integer divide by 30 to get a value that will remain stable in a 30 second time window. We don&apos;t really care if the value has a particular scale, as long as the value is reproducible on both sides.</p>
 <pre><code>input = CURRENT_UNIX_TIME() / 30
 </code></pre><p><strong>Finally we apply the signing function, HMAC-SHA1</strong>:</p>
 <pre><code>original_secret = xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
@@ -60,14 +61,14 @@ secret = BASE32_DECODE(TO_UPPERCASE(REMOVE_SPACES(original_secret)))
 input = CURRENT_UNIX_TIME() / 30
 hmac = SHA1(secret + SHA1(secret + input))
 </code></pre><p>Now, we could be done here as what we have so far will provide effective 2FA. However the resulting HMAC value is a standard-length SHA1 value (20 bytes, 40 hex characters) and nobody wants to type 40 characters. <strong>We want to those pretty 6-digit numbers!</strong></p>
-<p>To convert the 20-byte SHA1 to a 6-digit number we&#39;ll first slim it down a bit. We will use the last 4 bits of the SHA1 (a value ranging from 0-15) to index into the 20-byte value and use the next 4 bytes at that index. The maximum potential value of this indexing operation is 15 + 4 = 19, which is also the maximum index possible (remember, zero-based) so that will always work. So anyway, we get those 4 bytes:</p>
+<p>To convert the 20-byte SHA1 to a 6-digit number we&apos;ll first slim it down a bit. We will use the last 4 bits of the SHA1 (a value ranging from 0-15) to index into the 20-byte value and use the next 4 bytes at that index. The maximum potential value of this indexing operation is 15 + 4 = 19, which is also the maximum index possible (remember, zero-based) so that will always work. So anyway, we get those 4 bytes:</p>
 <pre><code>four_bytes = hmac[LAST_BYTE(hmac):LAST_BYTE(hmac) + 4]
 </code></pre><p>We can now turn these into a standard 32 bit unsigned integer (4 bytes = 32 bit).</p>
 <pre><code>large_integer = INT(four_bytes)
 </code></pre><p>Now we have a number, much better! However as the name suggests, this could still be a very large value (2^32 - 1), and that would obviously not be a 6 digit number. We can guarantee a 6-digit number by using the remainder of dividing by the first 7 digit number. Which is one million.</p>
 <pre><code>large_integer = INT(four_bytes)
 small_integer = large_integer % 1,000,000
-</code></pre><p>This is our final value. Here&#39;s everything together:</p>
+</code></pre><p>This is our final value. Here&apos;s everything together:</p>
 <pre><code>original_secret = xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
 secret = BASE32_DECODE(TO_UPPERCASE(REMOVE_SPACES(original_secret)))
 input = CURRENT_UNIX_TIME() / 30

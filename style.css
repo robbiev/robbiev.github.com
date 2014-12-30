@@ -1,6 +1,6 @@
 body {
   font-family: Georgia, serif;
-  font-size: 12pt;
+  font-size: 100%;
   margin: 0px;
 }
 
@@ -19,10 +19,12 @@ blockquote {
 
 pre, code {
   font-family: Menlo, Consolas, Monaco, Inconsolata, "Courier New", monospace;
+  overflow: auto;
 }
 
 pre {
-  padding: 5px;
+  font-size: 1em;
+  padding: 10px;
   background: #fafafa;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -65,7 +67,7 @@ table, td, th {
 
 .title {
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 12pt;
+  font-size: 1em;
   text-shadow: #333 2px 2px 4px;
   color: white;
 }
@@ -81,7 +83,7 @@ table, td, th {
 
 .blog, .home {
   margin: 25px 25px 25px 25px;
-  width: 50em;
+  max-width: 50em;
 }
 
 .blog .date {
@@ -92,7 +94,6 @@ table, td, th {
   margin-left: 0;
   margin-right: 0;
   margin-top: 1em;
-  line-height: 1.3em;
 }
 
 .blog .footer {
@@ -100,7 +101,7 @@ table, td, th {
 }
 
 .home .date {
-  font-size: 11pt;
+  font-size: 0.9em;
   margin-top: 0.2em;
   margin-bottom: 1.8em;
 }
@@ -120,11 +121,15 @@ h1, h2 {
 
 h1 {
   margin: 0px;
-  font-size: 20pt;
+  font-size: 1.70em;
+}
+
+h2 {
+  font-size: 1.45em;
 }
 
 .home h2 {
   margin: 0px;
-  font-size: 16pt;
+  font-size: 1.35em;
 }
 
