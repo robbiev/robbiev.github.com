@@ -8,9 +8,10 @@ a {
   text-decoration: none;
 }
 
-/* IE */
 img {  
-  border-style: none;
+  border-style: none; /* IE */
+  max-width: 100%;
+  height: auto;
 }
 
 blockquote {
