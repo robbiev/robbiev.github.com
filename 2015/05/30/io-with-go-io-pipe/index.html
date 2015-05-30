@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>I/O With Go: io.Pipe()</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-38858050-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+       ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+       })();
+    </script>
+  </head>
+  <body>
+    <div class="body">
+      <div class="header">
+        <div class="title">
+          <a href="/">Robbie&apos;s Garbage, Collected.</a>
+        </div>
+      </div>
+      <div class="blog">
+        <h1>I/O With Go: io.Pipe()</h1>
+        <div class="date">May 30, 2015</div>
+        <div class="entry"><p>I find that Go&apos;s <a href="https://golang.org/pkg/io/">I/O framework</a> is one of its major strengths:</p>
+<ul>
+<li>The <a href="https://golang.org/pkg/io/#Reader"><code>io.Reader</code></a> and <a href="https://golang.org/pkg/io/#Writer"><code>io.Writer</code></a> abstractions make it easy to create composable programs</li>
+<li>It&apos;s a great example of how to use interfaces in your own programs</li>
+</ul>
+<p>One of my recent discoveries is <a href="https://golang.org/pkg/io/#Pipe"><code>io.Pipe()</code></a>.</p>
+<p>Let&apos;s for example encode some JSON and send it as an HTTP POST body. You could use a <a href="https://golang.org/pkg/bytes/#Buffer"><code>bytes.Buffer</code></a> to store the result of the encoding and then pass it as the HTTP POST body:</p>
+<p><strong>BEFORE</strong></p>
+<pre><code class="lang-go">package main
+
+import (
+  &quot;bytes&quot;
+  &quot;encoding/json&quot;
+  &quot;io/ioutil&quot;
+  &quot;log&quot;
+  &quot;net/http&quot;
+)
+
+type msg struct {
+  Text string
+}
+
+func handleErr(err error) {
+  if err != nil {
+    log.Fatalf(&quot;%s\n&quot;, err)
+  }
+}
+
+func main() {
+  m := msg{Text: &quot;brought to you by bytes.Buffer&quot;}
+  var buf bytes.Buffer
+  err := json.NewEncoder(&amp;buf).Encode(&amp;m)
+  handleErr(err)
+
+  resp, err := http.Post(&quot;https://httpbin.org/post&quot;, &quot;application/json&quot;, &amp;buf)
+  handleErr(err)
+  defer resp.Body.Close()
+
+  b, err := ioutil.ReadAll(resp.Body)
+  handleErr(err)
+
+  log.Printf(&quot;%s\n&quot;, b)
+}
+</code></pre>
+<p>This is easy to understand but we are <strong>allocating a buffer we immediately discard</strong> which is the kind of pattern that becomes a problem at scale. <code>io.Pipe</code> allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:</p>
+<p><strong>AFTER</strong></p>
+<pre><code class="lang-go">package main
+
+import (
+  &quot;encoding/json&quot;
+  &quot;io&quot;
+  &quot;io/ioutil&quot;
+  &quot;log&quot;
+  &quot;net/http&quot;
+)
+
+type msg struct {
+  Text string
+}
+
+func handleErr(err error) {
+  if err != nil {
+    log.Fatalf(&quot;%s\n&quot;, err)
+  }
+}
+
+// use a io.Pipe to connect a JSON encoder to an HTTP POST: this way you do
+// not need a temporary buffer to store the JSON bytes
+func main() {
+  r, w := io.Pipe()
+
+  // writing without a reader will deadlock so write in a goroutine
+  go func() {
+    // it is important to close the writer or reading from the other end of the
+    // pipe will never finish
+    defer w.Close()
+
+    m := msg{Text: &quot;brought to you by io.Pipe()&quot;}
+    err := json.NewEncoder(w).Encode(&amp;m)
+    handleErr(err)
+  }()
+
+  resp, err := http.Post(&quot;https://httpbin.org/post&quot;, &quot;application/json&quot;, r)
+  handleErr(err)
+  defer resp.Body.Close()
+
+  b, err := ioutil.ReadAll(resp.Body)
+  handleErr(err)
+
+  log.Printf(&quot;%s\n&quot;, b)
+}
+</code></pre>
+<p>Of course in this trivial example it is overkill to use <code>io.Pipe</code>. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently <strong><code>io.Pipe</code> can make the life of the garbage collector significantly easier</strong>!</p>
+</div>
+        <div class="footer">
+          <em>Liking this? Follow me <a href="https://twitter.com/robbiev">on Twitter</a>.</em>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
