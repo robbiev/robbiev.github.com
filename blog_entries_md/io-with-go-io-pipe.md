@@ -49,7 +49,7 @@ func main() {
 }
 ```
 
-This is easy to understand but we are **allocating a buffer we immediately discard** which is the kind of pattern that becomes a problem at scale. `io.Pipe` allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:
+This is easy to understand but we are **allocating an unnecessary buffer** which is the kind of pattern that becomes a problem at scale. `io.Pipe` allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:
 
 **AFTER**
 
@@ -101,4 +101,4 @@ func main() {
 }
 ```
 
-Of course in this trivial example it is overkill to use `io.Pipe`. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently **`io.Pipe` can make the life of the garbage collector significantly easier**!
+Of course in this trivial example it is overkill to use `io.Pipe`. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently **`io.Pipe` can help you reduce memory pressure**!

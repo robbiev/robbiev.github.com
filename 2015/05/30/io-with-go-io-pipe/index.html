@@ -70,7 +70,7 @@ func main() {
   log.Printf(&quot;%s\n&quot;, b)
 }
 </code></pre>
-<p>This is easy to understand but we are <strong>allocating a buffer we immediately discard</strong> which is the kind of pattern that becomes a problem at scale. <code>io.Pipe</code> allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:</p>
+<p>This is easy to understand but we are <strong>allocating an unnecessary buffer</strong> which is the kind of pattern that becomes a problem at scale. <code>io.Pipe</code> allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:</p>
 <p><strong>AFTER</strong></p>
 <pre><code class="lang-go">package main
 
@@ -118,7 +118,7 @@ func main() {
   log.Printf(&quot;%s\n&quot;, b)
 }
 </code></pre>
-<p>Of course in this trivial example it is overkill to use <code>io.Pipe</code>. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently <strong><code>io.Pipe</code> can make the life of the garbage collector significantly easier</strong>!</p>
+<p>Of course in this trivial example it is overkill to use <code>io.Pipe</code>. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently <strong><code>io.Pipe</code> can help you reduce memory pressure</strong>!</p>
 </div>
         <div class="footer">
           <em>Liking this? Follow me <a href="https://twitter.com/robbiev">on Twitter</a>.</em>
