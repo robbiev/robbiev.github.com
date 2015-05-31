@@ -70,7 +70,7 @@ func main() {
   log.Printf(&quot;%s\n&quot;, b)
 }
 </code></pre>
-<p>This is easy to understand but we are <strong>allocating an unnecessary buffer</strong> which is the kind of pattern that can become a problem at scale. <code>io.Pipe</code> allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:</p>
+<p>This is easy to understand but we are <strong>unnecessarily copying data into a temporary buffer</strong> which is the kind of pattern that can become a problem at scale. <code>io.Pipe</code> allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:</p>
 <p><strong>AFTER</strong></p>
 <pre><code class="lang-go">package main
 

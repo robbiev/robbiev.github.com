@@ -49,7 +49,7 @@ func main() {
 }
 ```
 
-This is easy to understand but we are **allocating an unnecessary buffer** which is the kind of pattern that can become a problem at scale. `io.Pipe` allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:
+This is easy to understand but we are **unnecessarily copying data into a temporary buffer** which is the kind of pattern that can become a problem at scale. `io.Pipe` allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:
 
 **AFTER**
 
