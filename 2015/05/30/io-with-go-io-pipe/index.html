@@ -118,7 +118,7 @@ func main() {
   log.Printf(&quot;%s\n&quot;, b)
 }
 </code></pre>
-<p>Of course in this trivial example it is overkill to use <code>io.Pipe</code>. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently <strong><code>io.Pipe</code> can help you reduce memory pressure</strong>!</p>
+<p>Of course in this trivial example it is overkill to use <code>io.Pipe</code>. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently <strong><code>io.Pipe</code> can help you reduce memory usage</strong>!</p>
 </div>
         <div class="footer">
           <em>Liking this? Follow me <a href="https://twitter.com/robbiev">on Twitter</a>.</em>
