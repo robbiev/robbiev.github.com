@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Non-functional Software</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-38858050-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+       ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+       })();
+    </script>
+  </head>
+  <body>
+    <div class="body">
+      <div class="header">
+        <div class="title">
+          <a href="/">Robbie&apos;s Garbage, Collected.</a>
+        </div>
+      </div>
+      <div class="blog">
+        <h1>Non-functional Software</h1>
+        <div class="date">May 18, 2016</div>
+        <div class="entry"><p>When we plan to build a software system we often discuss two sets of requirements:</p>
+<ol>
+<li><strong><a href="https://en.wikipedia.org/wiki/Functional_requirement">Functional</a></strong> requirements: &quot;When I do X, the software does Y.&quot;.</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Non-functional_requirement">Non-functional</a></strong> requirements: privacy, performance, security, compatibility, ...</li>
+</ol>
+<p>Recently I found <a href="http://www.slideshare.net/littleidea/architecture-what-does-it-even-mean">another definition for non-functional requirements</a>:</p>
+<blockquote>
+<p>requirements which, if not met, will make a system non-functional</p>
+</blockquote>
+<p>Now, lately I&apos;ve been thinking about this definition and how it relates to software dependencies. <strong>Unless you&apos;re writing an operating system, your software always depends on other software</strong>. At the very least you&apos;ll be making some <a href="https://en.wikipedia.org/wiki/System_call">system calls</a> into the operating system. Using threads, sockets, files? These <strong>operating system dependencies are a part of your non-functional requirements</strong>.</p>
+<p>What I&apos;m getting at is that even if your library does not depend on other libraries (in the <a href="https://www.npmjs.com/">NPM</a> or <a href="https://maven.apache.org/">Maven</a> sense), <em>you still have dependencies</em> that are often implicit to the environment and you should consider documenting them. If your software&apos;s documentation says that <em>&quot;When I do X, it does Y&quot;</em> but it doesn&apos;t say anything about creating 100,000 threads to do Y, then you may want to consider documenting that. <strong>Your non-functional requirement (or lack thereof) is my non-functional behaviour</strong>.</p>
+<p>Usually, however, the problem is much more subtle. A pet peeve of mine is that libraries often don&apos;t document <strong>what thread a piece of code will run on</strong>. What&apos;s wrong with you people? If you write a framework or your library accepts a callback function, in other words you control the entry point, then you absolutely need to document this.</p>
+<p>Similarly, when is something blocking and when is it non-blocking? Is it okay to be blocked for long? If not, what do I do instead? If it accesses a networked service, does it automatically reconnect? With back-off? These are all things I need to know to ensure luck is not a factor in successfully running your software.</p>
+<p>We should have a name for this kind of software - <strong>non-functional software</strong>:</p>
+<blockquote>
+<p>software that, by not documenting its non-functional behaviour, is non-functional</p>
+</blockquote>
+</div>
+        <div class="footer">
+          <em>Liking this? Follow me <a href="https://twitter.com/robbiev">on Twitter</a>.</em>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
