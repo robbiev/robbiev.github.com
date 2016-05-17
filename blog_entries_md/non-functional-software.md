@@ -3,8 +3,8 @@ May 18, 2016
 
 When we plan to build a software system we often discuss two sets of requirements:
 
-1. **[Functional](https://en.wikipedia.org/wiki/Functional_requirement)** requirements: *"When I do X, the software does Y."*.
-1. **[Non-functional](https://en.wikipedia.org/wiki/Non-functional_requirement)** requirements: privacy, performance, security, compatibility, ...
+1. **[Functional](https://en.wikipedia.org/wiki/Functional_requirement)**: *"When I do X, the software does Y."*.
+1. **[Non-functional](https://en.wikipedia.org/wiki/Non-functional_requirement)**: privacy, performance, security, compatibility, ...
 
 Recently I found [another definition for non-functional requirements](http://www.slideshare.net/littleidea/architecture-what-does-it-even-mean):
 
