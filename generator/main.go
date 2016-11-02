@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"io/ioutil"
 
@@ -145,12 +146,18 @@ func main() {
 				Data: dateText,
 			})
 
+			t, err := time.Parse("January 2, 2006", dateText)
+			exitOnErr(err)
+			fmt.Println(t.Format("02"))
+			fmt.Println(t.Format("01"))
+			fmt.Println(t.Year())
+
 			for _, eh := range entryHTML {
 				entrye.AppendChild(eh)
 			}
 
 			// render the resulting blog entry page
-			exitOnErr(html.Render(os.Stdin, template))
+			//exitOnErr(html.Render(os.Stdin, template))
 		}
 	}
 }
