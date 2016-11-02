@@ -145,6 +145,9 @@ func main() {
 				Type: html.TextNode,
 				Data: dateText,
 			})
+			for _, eh := range entryHTML {
+				entrye.AppendChild(eh)
+			}
 
 			t, err := time.Parse("January 2, 2006", dateText)
 			exitOnErr(err)
@@ -152,9 +155,17 @@ func main() {
 			fmt.Println(t.Format("01"))
 			fmt.Println(t.Year())
 
-			for _, eh := range entryHTML {
-				entrye.AppendChild(eh)
-			}
+			targetDirStart := filepath.Join(baseLocation, t.Format("/2006/01/02/"))
+			name := f.Name()[0 : len(f.Name())-len(filepath.Ext(f.Name()))]
+			targetDir := filepath.Join(targetDirStart, name)
+
+			exitOnErr(os.RemoveAll(targetDir))
+			exitOnErr(os.MkdirAll(targetDir, 0755))
+
+			targetFile, err := os.Create(filepath.Join(targetDir, "index.html"))
+			exitOnErr(err)
+			exitOnErr(html.Render(targetFile, template))
+			targetFile.Close()
 
 			// render the resulting blog entry page
 			//exitOnErr(html.Render(os.Stdin, template))
