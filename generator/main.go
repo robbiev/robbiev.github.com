@@ -91,14 +91,18 @@ func loadTemplate() (*html.Node, error) {
 	return html.Parse(f)
 }
 
-func createIndexEntry(title string, date string, path string) []*html.Node {
-	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "generator/index-entry-template.html"))
-	exitOnErr(err)
-	entryHTML, err := html.ParseFragment(bytes.NewReader(b), &html.Node{
+func fakeBodyNode() *html.Node {
+	return &html.Node{
 		Type:     html.ElementNode,
 		Data:     "body",
 		DataAtom: atom.Body,
-	})
+	}
+}
+
+func createIndexEntry(title string, date string, path string) []*html.Node {
+	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "generator/index-entry-template.html"))
+	exitOnErr(err)
+	entryHTML, err := html.ParseFragment(bytes.NewReader(b), fakeBodyNode())
 	exitOnErr(err)
 
 	for _, entry := range entryHTML {
@@ -156,8 +160,14 @@ func generateEntries(location string, indexEntries []indexEntry, postProc postPr
 	files, err := ioutil.ReadDir(location)
 	exitOnErr(err)
 	for _, f := range files {
-		if !f.IsDir() {
-			// read the blog entry
+		if f.IsDir() {
+			continue
+		}
+
+		// read the blog entry
+		var titleText, dateText string
+		var bodyText bytes.Buffer
+		{
 			p := filepath.Join(location, f.Name())
 			srcf, err := os.Open(p)
 			exitOnErr(err)
@@ -167,43 +177,36 @@ func generateEntries(location string, indexEntries []indexEntry, postProc postPr
 			// get the title
 			scan.Scan()
 			exitOnErr(scan.Err())
-			titleText := scan.Text()
+			titleText = scan.Text()
 
 			// get the date
 			scan.Scan()
 			exitOnErr(scan.Err())
-			dateText := scan.Text()
+			dateText = scan.Text()
 
 			// read the rest of the body
-			var buf bytes.Buffer
 			for scan.Scan() {
-				buf.Write(scan.Bytes())
-				buf.WriteByte('\n')
+				bodyText.Write(scan.Bytes())
+				bodyText.WriteByte('\n')
 			}
 
 			exitOnErr(scan.Err())
 			srcf.Close()
 
-			buf = postProc(buf)
+			bodyText = postProc(bodyText)
+		}
 
-			// read the blog entry body as HTML
-			entryHTML, err := html.ParseFragment(&buf, &html.Node{
-				Type:     html.ElementNode,
-				Data:     "body",
-				DataAtom: atom.Body,
-			})
-			exitOnErr(err)
+		// get the blog entry page template
+		template, err := loadTemplate()
+		exitOnErr(err)
 
-			// get the blog entry page template
-			template, err := loadTemplate()
-			exitOnErr(err)
-
+		// set the blog entry data in the blog entry page template
+		{
 			title := queryHTML(template, hasType(atom.Title))
 			heading := queryHTML(template, hasType(atom.H1))
 			date := queryHTML(template, hasClass("date"))
 			entrye := queryHTML(template, hasClass("entry"))
 
-			// set the blog entry data in the blog entry page template
 			title.AppendChild(&html.Node{
 				Type: html.TextNode,
 				Data: titleText,
@@ -216,33 +219,44 @@ func generateEntries(location string, indexEntries []indexEntry, postProc postPr
 				Type: html.TextNode,
 				Data: dateText,
 			})
+
+			// read the blog entry body as HTML
+			entryHTML, err := html.ParseFragment(&bodyText, fakeBodyNode())
+			exitOnErr(err)
+
 			for _, eh := range entryHTML {
 				entrye.AppendChild(eh)
 			}
-
-			t, err := time.Parse("January 2, 2006", dateText)
-			exitOnErr(err)
-
-			targetDirStart := t.Format("2006/01/02/")
-			name := f.Name()[0 : len(f.Name())-len(filepath.Ext(f.Name()))]
-			targetDirLoc := filepath.Join(targetDirStart, name)
-			targetDir := filepath.Join(baseLocation, targetDirLoc)
-
-			exitOnErr(os.RemoveAll(targetDir))
-			exitOnErr(os.MkdirAll(targetDir, 0755))
-
-			targetFilePath := filepath.Join(targetDir, "index.html")
-			fmt.Printf("generating: %s\n", targetFilePath)
-			targetFile, err := os.Create(targetFilePath)
-			exitOnErr(err)
-			exitOnErr(html.Render(targetFile, template))
-			targetFile.Close()
-
-			indexEntries = append(indexEntries, indexEntry{
-				html: createIndexEntry(titleText, dateText, targetDirLoc+"/"),
-				time: t.Unix(),
-			})
 		}
+
+		t, err := time.Parse("January 2, 2006", dateText)
+		exitOnErr(err)
+
+		var targetPath, targetDir string
+		{
+			targetPathStart := t.Format("2006/01/02/")
+			fileNameWithoutExt := f.Name()[0 : len(f.Name())-len(filepath.Ext(f.Name()))]
+			targetPath = filepath.Join(targetPathStart, fileNameWithoutExt)
+			targetDir = filepath.Join(baseLocation, targetPath)
+		}
+
+		exitOnErr(os.RemoveAll(targetDir))
+		exitOnErr(os.MkdirAll(targetDir, 0755))
+
+		// write to file
+		{
+			targetFile := filepath.Join(targetDir, "index.html")
+			fmt.Printf("generating: %s\n", targetFile)
+			target, err := os.Create(targetFile)
+			exitOnErr(err)
+			exitOnErr(html.Render(target, template))
+			target.Close()
+		}
+
+		indexEntries = append(indexEntries, indexEntry{
+			html: createIndexEntry(titleText, dateText, targetPath+"/"),
+			time: t.Unix(),
+		})
 	}
 	return indexEntries
 }
@@ -294,10 +308,10 @@ func main() {
 
 	sort.Sort(ByTimeDesc(indexEntries))
 
-	targetFilePath := filepath.Join(baseLocation, "index.html")
-	targetFile, err := os.Create(targetFilePath)
-	fmt.Printf("generating: %s\n", targetFilePath)
+	targetFile := filepath.Join(baseLocation, "index.html")
+	target, err := os.Create(targetFile)
+	fmt.Printf("generating: %s\n", targetFile)
 	exitOnErr(err)
-	exitOnErr(html.Render(targetFile, createIndexHTML(indexEntries)))
-	targetFile.Close()
+	exitOnErr(html.Render(target, createIndexHTML(indexEntries)))
+	target.Close()
 }
