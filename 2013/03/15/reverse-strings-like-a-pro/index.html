@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!DOCTYPE html><html><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Reverse Strings Like a Pro</title>
-    <link rel="stylesheet" type="text/css" href="/style.css">
+    <link rel="stylesheet" type="text/css" href="/style.css"/>
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-38858050-1']);
@@ -20,22 +18,24 @@
     <div class="body">
       <div class="header">
         <div class="title">
-          <a href="/">Robbie&apos;s Garbage, Collected.</a>
+          <a href="/">Robbie&#39;s Garbage, Collected.</a>
         </div>
       </div>
       <div class="blog">
         <h1>Reverse Strings Like a Pro</h1>
         <div class="date">March 15, 2013</div>
         <div class="entry">
+
+        
 <p>
-After quitting my job in February I now started thinking about all the fun I&apos;ll
-have interviewing for a new one. It&apos;s not all bad of course, but I&apos;m not
+After quitting my job in February I now started thinking about all the fun I&#39;ll
+have interviewing for a new one. It&#39;s not all bad of course, but I&#39;m not
 particularly looking forward to writing yet <em>another</em> anagram
 detector or string reversal function. But this did make me wonder: how does
-string reversal work with <a href="http://en.wikipedia.org/wiki/Unicode">Unicode</a>? For example, Java&apos;s <code>String</code> is made up of <code>chars</code>.
+string reversal work with <a href="http://en.wikipedia.org/wiki/Unicode">Unicode</a>? For example, Java&#39;s <code>String</code> is made up of <code>chars</code>.
 The <code>char</code> data type is 2 bytes. But <strong>not all visible characters fit in 2 bytes</strong>:
 
-<ul>
+</p><ul>
   <li>
   Anything outside of the <a href="http://en.wikipedia.org/wiki/Plane_%28Unicode%29">Basic Multilingual Plane (BMP)</a>
   </li>
@@ -48,7 +48,7 @@ The <code>char</code> data type is 2 bytes. But <strong>not all visible characte
 The reverse is sometimes also true. For <a href="http://en.wikipedia.org/wiki/Typographic_ligature">ligatures</a>,
 multiple visible characters (also called <a href="http://en.wikipedia.org/wiki/Grapheme">graphemes</a>)
 can map to a single <code>char</code>. 
-</p>
+<p></p>
 <p>
 What does all this mean? <strong>Reversing a
   String is not like reversing an array.</strong>
@@ -56,23 +56,23 @@ What does all this mean? <strong>Reversing a
 
 <p>
 Take for example the word
-A&#x301;&#xFB03;cion&#x1D41A;&#x1E0B;&#x323;o. This is not exactly the
+Áﬃcion𝐚ḍ̇o. This is not exactly the
 <a href="http://en.wiktionary.org/wiki/afficionado">original spelling</a>; but
-let&apos;s see how it looks in terms of Unicode code units
-(<code>chars</code>) grouped by Unicode code point (individual &quot;building blocks&quot;
+let&#39;s see how it looks in terms of Unicode code units
+(<code>chars</code>) grouped by Unicode code point (individual &#34;building blocks&#34;
 of the word):
-<table>
-  <tr>
+</p><table>
+  <tbody><tr>
     <td>A</td>
-    <td>&#x301;</td>
-    <td>&#xFB03;</td>
+    <td>́</td>
+    <td>ﬃ</td>
     <td>c</td>
     <td>i</td>
     <td>o</td>
     <td>n</td>
-    <td>&#x1D41A;</td>
-    <td>&#x1E0B;</td>
-    <td>&#x323;</td>
+    <td>𝐚</td>
+    <td>ḋ</td>
+    <td>̣</td>
     <td>o</td>
   </tr>
   <tr>
@@ -83,39 +83,39 @@ of the word):
     <td><code>0x0069</code></td>
     <td><code>0x006F</code></td>
     <td><code>0x006E</code></td>
-    <td><code>0xD835&#xA0;0xDC1A</code></td>
+    <td><code>0xD835 0xDC1A</code></td>
     <td><code>0x1E0B</code></td>
     <td><code>0x0323</code></td>
     <td><code>0x006F</code></td>
   </tr>
-</table>
-</p>
+</tbody></table>
+<p></p>
 <p>
 Initially you might have thought that
-<code>&quot;A&#x301;&#xFB03;cion&#x1D41A;&#x1E0B;&#x323;o&quot;.length()</code>
-would have returned <code>11</code>. But it doesn&apos;t; it actually returns
+<code>&#34;Áﬃcion𝐚ḍ̇o&#34;.length()</code>
+would have returned <code>11</code>. But it doesn&#39;t; it actually returns
 <code>12</code>. This is because <strong><code>String#length()</code> returns the number
   of <code>chars</code>, not the number of visible characters</strong>. Things to note:
-<ul>
-  <li>Two visible characters (A&#x301; and &#x1E0B;&#x323;) have combining characters, thus needing 2 <code>chars</code> each</li>
-  <li>&#xFB03; is a ligature; it has 3 visible characters, yet only needs 1 <code>char</code></li>
-  <li>&#x1D41A; is outside of the BMP, so needs 2 <code>chars</code></li>
+</p><ul>
+  <li>Two visible characters (Á and ḍ̇) have combining characters, thus needing 2 <code>chars</code> each</li>
+  <li>ﬃ is a ligature; it has 3 visible characters, yet only needs 1 <code>char</code></li>
+  <li>𝐚 is outside of the BMP, so needs 2 <code>chars</code></li>
 </ul>
 Now you can probably imagine the fun Twitter has <a href="https://dev.twitter.com/docs/counting-characters">enforcing the 140
   character limit</a>. Anyway, knowing all this, we can do the math for our
 example: <code>2 + 1 + 1 + 1 + 1 + 1 + 2 + 2 + 1 = 12</code>.
-</p>
+<p></p>
 
 <p>
-So how about reversing our example? Here are the options I&apos;ve identified:
+So how about reversing our example? Here are the options I&#39;ve identified:
 
-<ol>
+</p><ol>
   <li>
-  <strong>Reverse the <code>char</code> array</strong>. This is what most people do when they&apos;re asked to
+  <strong>Reverse the <code>char</code> array</strong>. This is what most people do when they&#39;re asked to
   write a string reversal function during an interview. But for all the reasons I
   mentioned above this approach has severe limitations. Though it has to be said
-  that if you&apos;re not reversing a Unicode string, this is probably the most
-  efficient way to do it. But that&apos;s not the goal at the moment.
+  that if you&#39;re not reversing a Unicode string, this is probably the most
+  efficient way to do it. But that&#39;s not the goal at the moment.
   </li>
 
   <li>
@@ -132,7 +132,7 @@ So how about reversing our example? Here are the options I&apos;ve identified:
   <code><a href="http://docs.oracle.com/javase/7/docs/api/java/text/Normalizer.html">Normalizer</a></code> on your String to get rid of as many combining
   characters as possible before reversing. This helps 
   but does not work for all character combinations. Also this
-  has the effect of modifying your data (e.g. you can&apos;t reverse the reverse to
+  has the effect of modifying your data (e.g. you can&#39;t reverse the reverse to
   get back the original).
   </li>
 
@@ -140,18 +140,17 @@ So how about reversing our example? Here are the options I&apos;ve identified:
   Use <strong><code><a href="http://docs.oracle.com/javase/7/docs/api/java/text/BreakIterator.html">BreakIterator</a></code></strong>. This is the best way I have found to reverse a Unicode
   String and also the only way to correctly reverse our example. Note that there is
   still a limitation with ligatures; those letters will obviously not get
-  reversed. If this is needed you&apos;ll probably want to use the Normalizer after
+  reversed. If this is needed you&#39;ll probably want to use the Normalizer after
   all, pehaps on a subset of your data.
   </li>
 </ol>
-</p>
+<p></p>
 <p>Below you can find an example of using <code>BreakIterator</code>. This
 correctly reverses our example (except the ligature) and is a round-trip
 function (meaning you can reverse the reverse and get the original input back).
 </p>
 
-<pre>
-  public static String reverseUnicode(String source, Locale locale) {
+<pre>  public static String reverseUnicode(String source, Locale locale) {
     BreakIterator boundary = BreakIterator.getCharacterInstance(locale);
     boundary.setText(source);
 
@@ -180,5 +179,6 @@ I can honestly not remember the last time I needed to reverse a
         </div>
       </div>
     </div>
-  </body>
-</html>
+  
+
+</body></html>

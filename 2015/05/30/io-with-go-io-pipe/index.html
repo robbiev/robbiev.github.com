@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!DOCTYPE html><html><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>I/O With Go: io.Pipe()</title>
-    <link rel="stylesheet" type="text/css" href="/style.css">
+    <link rel="stylesheet" type="text/css" href="/style.css"/>
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-38858050-1']);
@@ -20,28 +18,32 @@
     <div class="body">
       <div class="header">
         <div class="title">
-          <a href="/">Robbie&apos;s Garbage, Collected.</a>
+          <a href="/">Robbie&#39;s Garbage, Collected.</a>
         </div>
       </div>
       <div class="blog">
         <h1>I/O With Go: io.Pipe()</h1>
         <div class="date">May 30, 2015</div>
-        <div class="entry"><p>I find that Go&apos;s <a href="https://golang.org/pkg/io/">I/O framework</a> is one of its major strengths:</p>
-<ul>
-<li>The <a href="https://golang.org/pkg/io/#Reader"><code>io.Reader</code></a> and <a href="https://golang.org/pkg/io/#Writer"><code>io.Writer</code></a> abstractions make it easy to create composable programs</li>
-<li>It&apos;s a great example of how to use interfaces in your own programs</li>
-</ul>
+        <div class="entry">
+
+        <p>I find that Go&#39;s <a href="https://golang.org/pkg/io/">I/O framework</a> is one of its major strengths:
+ * The <a href="https://golang.org/pkg/io/#Reader"><code>io.Reader</code></a> and <a href="https://golang.org/pkg/io/#Writer"><code>io.Writer</code></a> abstractions make it easy to create composable programs
+ * It&#39;s a great example of how to use interfaces in your own programs</p>
+
 <p>One of my recent discoveries is <a href="https://golang.org/pkg/io/#Pipe"><code>io.Pipe()</code></a>.</p>
-<p>Let&apos;s for example encode some JSON and send it as an HTTP POST body. You could use a <a href="https://golang.org/pkg/bytes/#Buffer"><code>bytes.Buffer</code></a> to store the result of the encoding and then pass it as the HTTP POST body:</p>
+
+<p>Let&#39;s for example encode some JSON and send it as an HTTP POST body. You could use a <a href="https://golang.org/pkg/bytes/#Buffer"><code>bytes.Buffer</code></a> to store the result of the encoding and then pass it as the HTTP POST body:</p>
+
 <p><strong>BEFORE</strong></p>
-<pre><code class="lang-go">package main
+
+<pre><code class="language-go">package main
 
 import (
-  &quot;bytes&quot;
-  &quot;encoding/json&quot;
-  &quot;io/ioutil&quot;
-  &quot;log&quot;
-  &quot;net/http&quot;
+  &#34;bytes&#34;
+  &#34;encoding/json&#34;
+  &#34;io/ioutil&#34;
+  &#34;log&#34;
+  &#34;net/http&#34;
 )
 
 type msg struct {
@@ -50,36 +52,39 @@ type msg struct {
 
 func handleErr(err error) {
   if err != nil {
-    log.Fatalf(&quot;%s\n&quot;, err)
+    log.Fatalf(&#34;%s\n&#34;, err)
   }
 }
 
 func main() {
-  m := msg{Text: &quot;brought to you by bytes.Buffer&quot;}
+  m := msg{Text: &#34;brought to you by bytes.Buffer&#34;}
   var buf bytes.Buffer
   err := json.NewEncoder(&amp;buf).Encode(&amp;m)
   handleErr(err)
 
-  resp, err := http.Post(&quot;https://httpbin.org/post&quot;, &quot;application/json&quot;, &amp;buf)
+  resp, err := http.Post(&#34;https://httpbin.org/post&#34;, &#34;application/json&#34;, &amp;buf)
   handleErr(err)
   defer resp.Body.Close()
 
   b, err := ioutil.ReadAll(resp.Body)
   handleErr(err)
 
-  log.Printf(&quot;%s\n&quot;, b)
+  log.Printf(&#34;%s\n&#34;, b)
 }
 </code></pre>
+
 <p>This is easy to understand but we are <strong>unnecessarily copying data into a temporary buffer</strong> which is the kind of pattern that can become a problem at scale. <code>io.Pipe</code> allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:</p>
+
 <p><strong>AFTER</strong></p>
-<pre><code class="lang-go">package main
+
+<pre><code class="language-go">package main
 
 import (
-  &quot;encoding/json&quot;
-  &quot;io&quot;
-  &quot;io/ioutil&quot;
-  &quot;log&quot;
-  &quot;net/http&quot;
+  &#34;encoding/json&#34;
+  &#34;io&#34;
+  &#34;io/ioutil&#34;
+  &#34;log&#34;
+  &#34;net/http&#34;
 )
 
 type msg struct {
@@ -88,7 +93,7 @@ type msg struct {
 
 func handleErr(err error) {
   if err != nil {
-    log.Fatalf(&quot;%s\n&quot;, err)
+    log.Fatalf(&#34;%s\n&#34;, err)
   }
 }
 
@@ -103,21 +108,22 @@ func main() {
     // pipe will never finish
     defer w.Close()
 
-    m := msg{Text: &quot;brought to you by io.Pipe()&quot;}
+    m := msg{Text: &#34;brought to you by io.Pipe()&#34;}
     err := json.NewEncoder(w).Encode(&amp;m)
     handleErr(err)
   }()
 
-  resp, err := http.Post(&quot;https://httpbin.org/post&quot;, &quot;application/json&quot;, r)
+  resp, err := http.Post(&#34;https://httpbin.org/post&#34;, &#34;application/json&#34;, r)
   handleErr(err)
   defer resp.Body.Close()
 
   b, err := ioutil.ReadAll(resp.Body)
   handleErr(err)
 
-  log.Printf(&quot;%s\n&quot;, b)
+  log.Printf(&#34;%s\n&#34;, b)
 }
 </code></pre>
+
 <p>Of course in this trivial example it is overkill to use <code>io.Pipe</code>. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently <strong><code>io.Pipe</code> can help you reduce memory usage</strong>!</p>
 </div>
         <div class="footer">
@@ -125,5 +131,6 @@ func main() {
         </div>
       </div>
     </div>
-  </body>
-</html>
+  
+
+</body></html>
