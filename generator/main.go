@@ -11,16 +11,29 @@ import (
 
 	"io/ioutil"
 
+	"github.com/russross/blackfriday"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
 
 const (
-	baseLocation      = "../"
-	blogEntryLocation = baseLocation + "blog_entries/"
+	baseLocation        = "../"
+	blogEntryLocation   = baseLocation + "blog_entries/"
+	blogEntryLocationMD = baseLocation + "blog_entries_md/"
 )
 
 type queryFunc func(*html.Node) *html.Node
+
+type indexEntry struct {
+	html []*html.Node
+	time int64
+}
+
+type ByTimeDesc []indexEntry
+
+func (a ByTimeDesc) Len() int           { return len(a) }
+func (a ByTimeDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByTimeDesc) Less(i, j int) bool { return a[i].time > a[j].time }
 
 func hasClass(class string) queryFunc {
 	return func(n *html.Node) *html.Node {
@@ -80,17 +93,6 @@ func loadTemplate() (*html.Node, error) {
 	return html.Parse(f)
 }
 
-type ByTimeDesc []indexEntry
-
-func (a ByTimeDesc) Len() int           { return len(a) }
-func (a ByTimeDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByTimeDesc) Less(i, j int) bool { return a[i].time > a[j].time }
-
-type indexEntry struct {
-	html []*html.Node
-	time int64
-}
-
 func createIndexEntry(title string, date string, path string) []*html.Node {
 	b, err := ioutil.ReadFile("index-entry-template.html")
 	exitOnErr(err)
@@ -137,7 +139,7 @@ func createIndexEntry(title string, date string, path string) []*html.Node {
 	return entryHTML
 }
 
-func indexHTML(entries []indexEntry) *html.Node {
+func createIndexHTML(entries []indexEntry) *html.Node {
 	b, err := ioutil.ReadFile("index-template.html")
 	exitOnErr(err)
 	entryHTML, err := html.Parse(bytes.NewReader(b))
@@ -153,19 +155,14 @@ func indexHTML(entries []indexEntry) *html.Node {
 	return entryHTML
 }
 
-func main() {
-	files, err := ioutil.ReadDir(blogEntryLocation)
-	exitOnErr(err)
-
-	var indexEntries []indexEntry
-
+func generateEntries(location string, files []os.FileInfo, indexEntries []indexEntry, postProc postProcFunc) []indexEntry {
 	for _, f := range files {
 		if !f.IsDir() {
 			fmt.Println()
 			fmt.Println(f.Name())
 
 			// read the blog entry
-			p := filepath.Join(blogEntryLocation, f.Name())
+			p := filepath.Join(location, f.Name())
 			srcf, err := os.Open(p)
 			exitOnErr(err)
 
@@ -190,6 +187,8 @@ func main() {
 
 			exitOnErr(scan.Err())
 			srcf.Close()
+
+			buf = postProc(buf)
 
 			// read the blog entry body as HTML
 			entryHTML, err := html.ParseFragment(&buf, &html.Node{
@@ -250,11 +249,43 @@ func main() {
 			//exitOnErr(html.Render(os.Stdin, template))
 		}
 	}
+	return indexEntries
+}
+
+type postProcFunc func(bytes.Buffer) bytes.Buffer
+
+func main() {
+
+	var indexEntries []indexEntry
+
+	files, err := ioutil.ReadDir(blogEntryLocation)
+	exitOnErr(err)
+
+	indexEntries = generateEntries(blogEntryLocation, files, indexEntries, func(b bytes.Buffer) bytes.Buffer {
+		return b
+	})
+
+	filesMD, err := ioutil.ReadDir(blogEntryLocationMD)
+	exitOnErr(err)
+	indexEntries = generateEntries(blogEntryLocationMD, filesMD, indexEntries, func(b bytes.Buffer) bytes.Buffer {
+		commonHtmlFlags := 0
+		commonExtensions := 0 |
+			blackfriday.EXTENSION_TABLES |
+			blackfriday.EXTENSION_FENCED_CODE |
+			blackfriday.EXTENSION_AUTOLINK |
+			blackfriday.EXTENSION_STRIKETHROUGH |
+			blackfriday.EXTENSION_DEFINITION_LISTS
+		renderer := blackfriday.HtmlRenderer(commonHtmlFlags, "", "")
+		out := blackfriday.MarkdownOptions(b.Bytes(), renderer, blackfriday.Options{
+			Extensions: commonExtensions,
+		})
+		return *bytes.NewBuffer(out)
+	})
 
 	sort.Sort(ByTimeDesc(indexEntries))
 
 	targetFile, err := os.Create(filepath.Join(baseLocation, "index.html"))
 	exitOnErr(err)
-	exitOnErr(html.Render(targetFile, indexHTML(indexEntries)))
+	exitOnErr(html.Render(targetFile, createIndexHTML(indexEntries)))
 	targetFile.Close()
 }
