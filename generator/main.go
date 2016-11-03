@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 
 	"io/ioutil"
@@ -79,9 +80,84 @@ func loadTemplate() (*html.Node, error) {
 	return html.Parse(f)
 }
 
+type ByTimeDesc []indexEntry
+
+func (a ByTimeDesc) Len() int           { return len(a) }
+func (a ByTimeDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByTimeDesc) Less(i, j int) bool { return a[i].time > a[j].time }
+
+type indexEntry struct {
+	html []*html.Node
+	time int64
+}
+
+func createIndexEntry(title string, date string, path string) []*html.Node {
+	b, err := ioutil.ReadFile("index-entry-template.html")
+	exitOnErr(err)
+	entryHTML, err := html.ParseFragment(bytes.NewReader(b), &html.Node{
+		Type:     html.ElementNode,
+		Data:     "body",
+		DataAtom: atom.Body,
+	})
+	exitOnErr(err)
+
+	for _, entry := range entryHTML {
+		titleNode := queryHTML(entry, hasType(atom.A))
+		if titleNode != nil {
+			titleNode.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: title,
+			})
+
+			var found bool
+			for i, attr := range titleNode.Attr {
+				if attr.Key == "href" {
+					fmt.Println(attr)
+					attr.Val = path
+					titleNode.Attr[i] = attr
+					found = true
+					break
+				}
+			}
+			if !found {
+				titleNode.Attr = append(titleNode.Attr, html.Attribute{
+					Key: "href",
+					Val: path,
+				})
+			}
+		}
+		dateNode := queryHTML(entry, hasClass("date"))
+		if dateNode != nil {
+			dateNode.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: date,
+			})
+		}
+	}
+	return entryHTML
+}
+
+func indexHTML(entries []indexEntry) *html.Node {
+	b, err := ioutil.ReadFile("index-template.html")
+	exitOnErr(err)
+	entryHTML, err := html.Parse(bytes.NewReader(b))
+	exitOnErr(err)
+
+	home := queryHTML(entryHTML, hasClass("home"))
+	for _, v := range entries {
+		for _, html := range v.html {
+			home.AppendChild(html)
+		}
+	}
+
+	return entryHTML
+}
+
 func main() {
 	files, err := ioutil.ReadDir(blogEntryLocation)
 	exitOnErr(err)
+
+	var indexEntries []indexEntry
 
 	for _, f := range files {
 		if !f.IsDir() {
@@ -151,13 +227,11 @@ func main() {
 
 			t, err := time.Parse("January 2, 2006", dateText)
 			exitOnErr(err)
-			fmt.Println(t.Format("02"))
-			fmt.Println(t.Format("01"))
-			fmt.Println(t.Year())
 
-			targetDirStart := filepath.Join(baseLocation, t.Format("/2006/01/02/"))
+			targetDirStart := t.Format("2006/01/02/")
 			name := f.Name()[0 : len(f.Name())-len(filepath.Ext(f.Name()))]
-			targetDir := filepath.Join(targetDirStart, name)
+			targetDirLoc := filepath.Join(targetDirStart, name)
+			targetDir := filepath.Join(baseLocation, targetDirLoc)
 
 			exitOnErr(os.RemoveAll(targetDir))
 			exitOnErr(os.MkdirAll(targetDir, 0755))
@@ -167,8 +241,20 @@ func main() {
 			exitOnErr(html.Render(targetFile, template))
 			targetFile.Close()
 
+			indexEntries = append(indexEntries, indexEntry{
+				html: createIndexEntry(titleText, dateText, targetDirLoc+"/"),
+				time: t.Unix(),
+			})
+
 			// render the resulting blog entry page
 			//exitOnErr(html.Render(os.Stdin, template))
 		}
 	}
+
+	sort.Sort(ByTimeDesc(indexEntries))
+
+	targetFile, err := os.Create(filepath.Join(baseLocation, "index.html"))
+	exitOnErr(err)
+	exitOnErr(html.Render(targetFile, indexHTML(indexEntries)))
+	targetFile.Close()
 }
