@@ -24,6 +24,8 @@ const (
 
 type queryFunc func(*html.Node) *html.Node
 
+type postProcFunc func(bytes.Buffer) bytes.Buffer
+
 type indexEntry struct {
 	html []*html.Node
 	time int64
@@ -114,7 +116,6 @@ func createIndexEntry(title string, date string, path string) []*html.Node {
 			var found bool
 			for i, attr := range titleNode.Attr {
 				if attr.Key == "href" {
-					fmt.Println(attr)
 					attr.Val = path
 					titleNode.Attr[i] = attr
 					found = true
@@ -155,12 +156,11 @@ func createIndexHTML(entries []indexEntry) *html.Node {
 	return entryHTML
 }
 
-func generateEntries(location string, files []os.FileInfo, indexEntries []indexEntry, postProc postProcFunc) []indexEntry {
+func generateEntries(location string, indexEntries []indexEntry, postProc postProcFunc) []indexEntry {
+	files, err := ioutil.ReadDir(location)
+	exitOnErr(err)
 	for _, f := range files {
 		if !f.IsDir() {
-			fmt.Println()
-			fmt.Println(f.Name())
-
 			// read the blog entry
 			p := filepath.Join(location, f.Name())
 			srcf, err := os.Open(p)
@@ -235,7 +235,9 @@ func generateEntries(location string, files []os.FileInfo, indexEntries []indexE
 			exitOnErr(os.RemoveAll(targetDir))
 			exitOnErr(os.MkdirAll(targetDir, 0755))
 
-			targetFile, err := os.Create(filepath.Join(targetDir, "index.html"))
+			targetFilePath := filepath.Join(targetDir, "index.html")
+			fmt.Printf("generating: %s\n", targetFilePath)
+			targetFile, err := os.Create(targetFilePath)
 			exitOnErr(err)
 			exitOnErr(html.Render(targetFile, template))
 			targetFile.Close()
@@ -244,30 +246,19 @@ func generateEntries(location string, files []os.FileInfo, indexEntries []indexE
 				html: createIndexEntry(titleText, dateText, targetDirLoc+"/"),
 				time: t.Unix(),
 			})
-
-			// render the resulting blog entry page
-			//exitOnErr(html.Render(os.Stdin, template))
 		}
 	}
 	return indexEntries
 }
 
-type postProcFunc func(bytes.Buffer) bytes.Buffer
-
 func main() {
-
 	var indexEntries []indexEntry
 
-	files, err := ioutil.ReadDir(blogEntryLocation)
-	exitOnErr(err)
-
-	indexEntries = generateEntries(blogEntryLocation, files, indexEntries, func(b bytes.Buffer) bytes.Buffer {
+	indexEntries = generateEntries(blogEntryLocation, indexEntries, func(b bytes.Buffer) bytes.Buffer {
 		return b
 	})
 
-	filesMD, err := ioutil.ReadDir(blogEntryLocationMD)
-	exitOnErr(err)
-	indexEntries = generateEntries(blogEntryLocationMD, filesMD, indexEntries, func(b bytes.Buffer) bytes.Buffer {
+	indexEntries = generateEntries(blogEntryLocationMD, indexEntries, func(b bytes.Buffer) bytes.Buffer {
 		commonHtmlFlags := 0
 		commonExtensions := 0 |
 			blackfriday.EXTENSION_TABLES |
@@ -284,7 +275,9 @@ func main() {
 
 	sort.Sort(ByTimeDesc(indexEntries))
 
-	targetFile, err := os.Create(filepath.Join(baseLocation, "index.html"))
+	targetFilePath := filepath.Join(baseLocation, "index.html")
+	targetFile, err := os.Create(targetFilePath)
+	fmt.Printf("generating: %s\n", targetFilePath)
 	exitOnErr(err)
 	exitOnErr(html.Render(targetFile, createIndexHTML(indexEntries)))
 	targetFile.Close()
