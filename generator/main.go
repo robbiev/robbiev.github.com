@@ -16,11 +16,7 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
-const (
-	baseLocation        = "../"
-	blogEntryLocation   = baseLocation + "blog_entries/"
-	blogEntryLocationMD = baseLocation + "blog_entries_md/"
-)
+var baseLocation string
 
 type queryFunc func(*html.Node) *html.Node
 
@@ -89,14 +85,14 @@ func exitOnErr(err error) {
 }
 
 func loadTemplate() (*html.Node, error) {
-	f, err := os.Open("post-template.html")
+	f, err := os.Open(filepath.Join(baseLocation, "generator/post-template.html"))
 	exitOnErr(err)
 	defer f.Close()
 	return html.Parse(f)
 }
 
 func createIndexEntry(title string, date string, path string) []*html.Node {
-	b, err := ioutil.ReadFile("index-entry-template.html")
+	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "generator/index-entry-template.html"))
 	exitOnErr(err)
 	entryHTML, err := html.ParseFragment(bytes.NewReader(b), &html.Node{
 		Type:     html.ElementNode,
@@ -141,7 +137,7 @@ func createIndexEntry(title string, date string, path string) []*html.Node {
 }
 
 func createIndexHTML(entries []indexEntry) *html.Node {
-	b, err := ioutil.ReadFile("index-template.html")
+	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "generator/index-template.html"))
 	exitOnErr(err)
 	entryHTML, err := html.Parse(bytes.NewReader(b))
 	exitOnErr(err)
@@ -251,7 +247,30 @@ func generateEntries(location string, indexEntries []indexEntry, postProc postPr
 	return indexEntries
 }
 
+func getBlogRoot() string {
+	dir, err := os.Getwd()
+	exitOnErr(err)
+	fmt.Printf("working directory: %s\n", dir)
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "blog_entries")); err == nil {
+			break
+		}
+		dir = filepath.Dir(dir)
+		if dir == "/" || dir == "." {
+			fmt.Fprintln(os.Stderr, "can't find blog root")
+			os.Exit(1)
+		}
+	}
+	return dir
+}
+
 func main() {
+	baseLocation = getBlogRoot()
+	fmt.Printf("blog root: %s\n", baseLocation)
+
+	blogEntryLocation := filepath.Join(baseLocation, "blog_entries")
+	blogEntryLocationMD := filepath.Join(baseLocation, "blog_entries_md")
+
 	var indexEntries []indexEntry
 
 	indexEntries = generateEntries(blogEntryLocation, indexEntries, func(b bytes.Buffer) bytes.Buffer {
