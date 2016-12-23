@@ -2,78 +2,113 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
-var seen map[string]struct{}
-var client http.Client
+const (
+	numWorkers = 5
+)
 
-func findLinks(base string, location string, parent string, isHTTP bool) {
-	if _, ok := seen[location]; ok {
+var (
+	workerCh = make(chan job, 5*numWorkers)
+	seen     = make(map[string]struct{})
+	client   = http.Client{
+		Timeout: 10 * time.Second,
+	}
+	wg         sync.WaitGroup
+	printMutex sync.Mutex
+)
+
+type job struct {
+	sourceLocation string
+	targetLocation string
+}
+
+func clearLine() {
+	fmt.Print("\033[2K\r")
+}
+
+func checkLink(j job) {
+	if _, ok := seen[j.targetLocation]; ok {
 		return
 	}
-	seen[location] = struct{}{}
+	seen[j.targetLocation] = struct{}{}
+	wg.Add(1)
+	workerCh <- j
+}
 
-	var r io.ReadCloser
-	if isHTTP {
-		resp, err := client.Get(location)
-		if err != nil {
-			fmt.Print("\033[2K\r")
-			fmt.Printf("FAILED: %s\nfrom: %s\nto: %s\n", err, parent, location)
-			// os.Exit(1)
-			return
-		}
-		resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			fmt.Print("\033[2K\r")
-			fmt.Printf("FAILED: %d\nfrom: %s\nto: %s\n", resp.StatusCode, parent, location)
-			// os.Exit(1)
-			return
-		}
-		return
-	} else {
-		var err error
-		r, err = os.Open(filepath.Join(base, location))
-		exitOnErr(err)
+// local links need to be interpreted to exist on the file system
+func indexify(href string) string {
+	if href == "" {
+		return "index.html"
 	}
+
+	if href[len(href)-1:] == "/" {
+		return href + "index.html"
+	}
+
+	return href
+}
+
+func findLinks(base string, j job, n *html.Node) {
+	if n.Type == html.ElementNode && n.Data == atom.A.String() {
+		var href string
+		for _, v := range n.Attr {
+			if v.Key == atom.Href.String() {
+				href = v.Val
+			}
+		}
+
+		isHTTP := strings.HasPrefix(href, "http")
+
+		if !isHTTP {
+			href = indexify(href)
+		}
+
+		nextJob := job{
+			targetLocation: href,
+			sourceLocation: j.targetLocation,
+		}
+
+		printMutex.Lock()
+		clearLine()
+		fmt.Printf("%s: %s", nextJob.sourceLocation, nextJob.targetLocation)
+		printMutex.Unlock()
+
+		if isHTTP {
+			checkLink(nextJob)
+		} else {
+			findLinksInFile(base, nextJob)
+		}
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		findLinks(base, j, c)
+	}
+}
+
+func findLinksInFile(base string, j job) {
+	if _, ok := seen[j.targetLocation]; ok {
+		return
+	}
+	seen[j.targetLocation] = struct{}{}
+
+	r, err := os.Open(filepath.Join(base, j.targetLocation))
+	exitOnErr(err)
 
 	doc, err := html.Parse(r)
 	r.Close()
 	exitOnErr(err)
 
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "a" {
-			var href string
-			for _, v := range n.Attr {
-				if v.Key == "href" {
-					href = v.Val
-				}
-			}
-
-			isHTTP := strings.HasPrefix(href, "http")
-
-			if href == "" {
-				href = "index.html"
-			} else if !isHTTP && href[len(href)-1:] == "/" {
-				href = href + "index.html"
-			}
-			fmt.Print("\033[2K\r")
-			fmt.Printf("%s: %s", location, href)
-			findLinks(base, href, location, isHTTP)
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
-		}
-	}
-	f(doc)
+	findLinks(base, j, doc)
 }
 
 func exitOnErr(err error) {
@@ -87,6 +122,7 @@ func getBlogRoot() string {
 	dir, err := os.Getwd()
 	exitOnErr(err)
 	fmt.Printf("working directory: %s\n", dir)
+	fmt.Println(strings.Repeat("=", 10))
 	for {
 		if _, err := os.Stat(filepath.Join(dir, "blog_entries")); err == nil {
 			break
@@ -100,13 +136,52 @@ func getBlogRoot() string {
 	return dir
 }
 
-func main() {
-	blogRoot := getBlogRoot()
-	fmt.Println(blogRoot)
-	seen = make(map[string]struct{})
-	client = http.Client{
-		Timeout: 5 * time.Second,
+func linkChecker() {
+	print := func(f func()) {
+		printMutex.Lock()
+		clearLine()
+		f()
+		fmt.Println(strings.Repeat("=", 10))
+		printMutex.Unlock()
 	}
-	findLinks(blogRoot, "index.html", "/", false)
+
+	for job := range workerCh {
+		resp, err := client.Get(job.targetLocation)
+
+		if err != nil {
+			print(func() {
+				fmt.Printf("FAILED: %s\nfrom: %s\nto: %s\n", err, job.sourceLocation, job.targetLocation)
+			})
+		} else {
+			resp.Body.Close()
+
+			if resp.StatusCode != http.StatusOK {
+				print(func() {
+					fmt.Printf("FAILED: %d\nfrom: %s\nto: %s\n", resp.StatusCode, job.sourceLocation, job.targetLocation)
+				})
+			}
+		}
+
+		wg.Done()
+	}
+}
+
+func main() {
+	// toggle line wrapping so clearing lines is easier
+	fmt.Print("\033[?7l")
+	defer fmt.Print("\033[?7h")
+
+	for i := 0; i < numWorkers; i++ {
+		go linkChecker()
+	}
+
+	findLinksInFile(getBlogRoot(), job{
+		targetLocation: "index.html",
+		sourceLocation: "/", // whatever
+	})
+
+	wg.Wait()
+	close(workerCh)
+
 	fmt.Println()
 }
