@@ -59,6 +59,14 @@ func indexify(href string) string {
 }
 
 func findLinks(base string, j job, n *html.Node) {
+	print := func(nextJob job) job {
+		printMutex.Lock()
+		clearLine()
+		fmt.Printf("%s: %s", nextJob.sourceLocation, nextJob.targetLocation)
+		printMutex.Unlock()
+		return nextJob
+	}
+
 	if n.Type == html.ElementNode && n.Data == atom.A.String() {
 		var href string
 		for _, v := range n.Attr {
@@ -67,26 +75,16 @@ func findLinks(base string, j job, n *html.Node) {
 			}
 		}
 
-		isHTTP := strings.HasPrefix(href, "http")
-
-		if !isHTTP {
-			href = indexify(href)
-		}
-
-		nextJob := job{
-			targetLocation: href,
-			sourceLocation: j.targetLocation,
-		}
-
-		printMutex.Lock()
-		clearLine()
-		fmt.Printf("%s: %s", nextJob.sourceLocation, nextJob.targetLocation)
-		printMutex.Unlock()
-
-		if isHTTP {
-			checkLink(nextJob)
+		if strings.HasPrefix(href, "http") {
+			checkLink(print(job{
+				targetLocation: href,
+				sourceLocation: j.targetLocation,
+			}))
 		} else {
-			findLinksInFile(base, nextJob)
+			findLinksInFile(base, print(job{
+				targetLocation: indexify(href),
+				sourceLocation: j.targetLocation,
+			}))
 		}
 	}
 
