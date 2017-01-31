@@ -325,10 +325,10 @@ It becomes immediately obvious why, eg, ^[ becomes escape. Or that the alphabet 
 <li><code>00 11011</code> means ESC</li>
 </ul>
 
-<p>So when we you type <code>CTRL+[</code> for <code>ESC</code>, you&#39;re asking for the equivalent of the character <code>11011</code> (<code>[</code>) out of the control set. Pressing CTRL simply sets all bits but the last 5 to zero in the character that you typed. You can imagine it as a bitwise AND.</p>
+<p>So when we you type <code>CTRL+[</code> for <code>ESC</code>, you&#39;re asking for the equivalent of the character <code>11011</code> (<code>[</code>) out of the control set. Pressing CTRL simply sets all bits but the last 5 to zero in the character that you typed. You can imagine it as a bitwise OR.</p>
 
 <pre><code>  10 11011 ([)
-&amp; 00 11111 (CTRL)
+| 00 11111 (CTRL)
 = 00 11011 (ESC)
 </code></pre>
 
