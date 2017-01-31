@@ -59,11 +59,11 @@ Now in this table, look for ESC. It's in the first group, fifth from the bottom.
 * `10 11011` means [
 * `00 11011` means ESC
 
-So when we you type `CTRL+[` for `ESC`, you're asking for the equivalent of the character `11011` (`[`) out of the control set. Pressing CTRL simply sets all bits but the last 5 to zero in the character that you typed. You can imagine it as a bitwise AND.
+So when we you type `CTRL+[` for `ESC`, you're asking for the equivalent of the character `11011` (`[`) out of the control set. Pressing CTRL simply sets all bits but the last 5 to zero in the character that you typed. You can imagine it as a bitwise OR.
 
 ```
   10 11011 ([)
-& 00 11111 (CTRL)
+| 00 11111 (CTRL)
 = 00 11011 (ESC)
 ```
 
