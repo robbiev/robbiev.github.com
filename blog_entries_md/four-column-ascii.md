@@ -8,7 +8,7 @@ Here's an excerpt from the comment:
 >I always thought it was a shame the ascii table is rarely shown in columns (or rows) of 32, as it makes a lot of this quite obvious. eg, http://pastebin.com/cdaga5i1
 It becomes immediately obvious why, eg, ^[ becomes escape. Or that the alphabet is just 40h + the ordinal position of the letter (or 60h for lower-case). Or that we shift between upper & lower-case with a single bit.
 
-You know in [ASCII](http://www.asciitable.com/) there are 32 characters at the beginning of the table that don't represent a written symbols. Backspace, newline, escape - that sort of thing. These are called [control characters](https://en.wikipedia.org/wiki/Control_character).
+You know in [ASCII](http://www.asciitable.com/) there are 32 characters at the beginning of the table that don't represent a written symbol. Backspace, newline, escape - that sort of thing. These are called [control characters](https://en.wikipedia.org/wiki/Control_character).
 
 In the terminal you can type these control characters by holding the `CTRL` (control characters, get it?) key in combination with another key. For example, as many experienced vim users know pressing `CTRL+[` in the terminal (which is `^[` in [caret notation](https://en.wikipedia.org/wiki/Caret_notation)) is the same as pressing the `ESC` key. **But why is the escape key triggered by the `[` character? Why not another character?** This is the insight soneil shares with us.
 
