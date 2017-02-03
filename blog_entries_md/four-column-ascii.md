@@ -19,40 +19,40 @@ Remember that ASCII is a 7 bit encoding. Let's say the following:
 
 In the linked table, which I reproduce below, the four groups are represented by the columns and the rows represent the values.
 
-|   |00 |01 |10 |11 |
+|00 |01 |10 |11 |   |
 |---|---|---|---|---|
-|00000|NUL|Spc|@|\`|
-|00001|SOH|!|A|a|
-|00010|STX|"|B|b|
-|00011|ETX|#|C|c|
-|00100|EOT|$|D|d|
-|00101|ENQ|%|E|e|
-|00110|ACK|&|F|f|
-|00111|BEL|'|G|g|
-|01000|BS |(|H|h|
-|01001|TAB|)|I|i|
-|01010|LF|*|J|j|
-|01011|VT|+|K|k|
-|01100|FF|,|L|l|
-|01101|CR|-|M|m|
-|01110|SO|.|N|n|
-|01111|SI|/|O|o|
-|10000|DLE|0|P|p|
-|10001|DC1|1|Q|q|
-|10010|DC2|2|R|r|
-|10011|DC3|3|S|s|
-|10100|DC4|4|T|t|
-|10101|NAK|5|U|u|
-|10110|SYN|6|V|v|
-|10111|ETB|7|W|w|
-|11000|CAN|8|X|x|
-|11001|EM |9|Y|y|
-|11010|SUB|:|Z|z|
-|**11011**|**ESC**|;|**[**|{|
-|11100|FS|<|\\|\||
-|11101|GS|=|]|}|
-|11110|RS|>|^|~|
-|11111|US|?|_|DEL|
+NUL|Spc|@|\`|00000|
+SOH|!|A|a|   00001|
+STX|"|B|b|   00010|
+ETX|#|C|c|   00011|
+EOT|$|D|d|   00100|
+ENQ|%|E|e|   00101|
+ACK|&|F|f|   00110|
+BEL|'|G|g|   00111|
+BS |(|H|h|   01000|
+TAB|)|I|i|   01001|
+LF|*|J|j|    01010|
+VT|+|K|k|    01011|
+FF|,|L|l|    01100|
+CR|-|M|m|    01101|
+SO|.|N|n|    01110|
+SI|/|O|o|    01111|
+DLE|0|P|p|   10000|
+DC1|1|Q|q|   10001|
+DC2|2|R|r|   10010|
+DC3|3|S|s|   10011|
+DC4|4|T|t|   10100|
+NAK|5|U|u|   10101|
+SYN|6|V|v|   10110|
+ETB|7|W|w|   10111|
+CAN|8|X|x|   11000|
+EM |9|Y|y|   11001|
+SUB|:|Z|z|   11010|
+|**ESC**|;|**[**|{|**11011**|
+FS|<|\\|\||  11100|
+GS|=|]|}|    11101|
+RS|>|^|~|    11110|
+US|?|_|DEL|  11111|
 
 Now in this table, look for ESC. It's in the first group, fifth from the bottom. It's in the first column so its group has bits '00', the row has bits '11011'. Now look on the same line, what else is there? Yep, the '[' character is there, be it in a different column:
 
