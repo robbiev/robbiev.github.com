@@ -4,7 +4,6 @@ February 22, 2017
 While they are very convenient, I always found Go's range loops a bit mystifying. I'm not alone in this:
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr"><a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> pop quiz: does this program terminate?<br><br>func main() {<br>   v := []int{1, 2, 3}<br>   for i := range v {<br>       v = append(v, i)<br>  }<br>}</p>&mdash; Dαve Cheney (@davecheney) <a href="https://twitter.com/davecheney/status/819759166617108481">January 13, 2017</a></blockquote>
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Today&#39;s <a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> gotcha: the two-value range over an array does a copy.  Avoid by ranging over the pointer instead.<a href="https://t.co/SbK667osvA">https://t.co/SbK667osvA</a></p>&mdash; Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 Now I could take these facts and try to remember them but it is likely I will forget. To have a better chance of remembering this I'll need to find out _why_ the range loop behaves the way it does. So here goes.
 
@@ -189,3 +188,5 @@ So why might you not see the element you added in an upcoming iteration? Well if
 7. [slice source code](https://golang.org/src/runtime/slice.go)
 8. [map source code](https://golang.org/src/runtime/hashmap.go)
 9. [channel source code](https://golang.org/src/runtime/chan.go)
+
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
