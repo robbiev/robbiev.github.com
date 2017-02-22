@@ -1,0 +1,265 @@
+<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Go Range Loop Internals</title>
+    <link rel="stylesheet" type="text/css" href="/style.css"/>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-38858050-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+       ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+       })();
+    </script>
+  </head>
+  <body>
+    <div class="body">
+      <div class="header">
+        <div class="title">
+          <a href="/">Robbie&#39;s Garbage, Collected.</a>
+        </div>
+      </div>
+      <div class="blog">
+        <h1>Go Range Loop Internals</h1>
+        <div class="date">February 22, 2017</div>
+        <div class="entry">
+
+        <p>While they are very convenient, I always found Go&#39;s range loops a bit mystifying. I&#39;m not alone in this:
+</p><blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr"><a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> pop quiz: does this program terminate?<br/><br/>func main() {<br/>   v := []int{1, 2, 3}<br/>   for i := range v {<br/>       v = append(v, i)<br/>  }<br/>}</p>— Dαve Cheney (@davecheney) <a href="https://twitter.com/davecheney/status/819759166617108481">January 13, 2017</a></blockquote>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Today&#39;s <a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> gotcha: the two-value range over an array does a copy.  Avoid by ranging over the pointer instead.<a href="https://t.co/SbK667osvA">https://t.co/SbK667osvA</a></p>— Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></blockquote>
+<script async="" src="//platform.twitter.com/widgets.js" charset="utf-8"></script><p></p>
+
+<p>Now I could take these facts and try to remember them but it is likely I will forget. To have a better chance of remembering this I&#39;ll need to find out <em>why</em> the range loop behaves the way it does. So here goes.</p>
+
+<h2>Step 1: RTFM</h2>
+
+<p>The first order of business is to go read the range loop documentation. The Go language spec documents range loops in <a href="https://golang.org/ref/spec#For_statements">the for statement section</a> under &#34;For statements with <code>range</code> clause&#34;. I will not copy the entire spec here, but let me summarise some of the interesting bits.</p>
+
+<p>First, let&#39;s remind ourselves what we&#39;re looking at here:</p>
+
+<pre><code>for i := range a {
+    fmt.Println(i)
+}
+</code></pre>
+
+<h3>The range variables</h3>
+
+<p>Most of you will know that to the left of the range clause (<code>i</code> in the example above) you can assign the loop variables using:</p>
+
+<ul>
+<li>assigment (<code>=</code>)</li>
+<li>short variable declaration (<code>:=</code>)</li>
+</ul>
+
+<p>You can also choose to put nothing to ignore the loop variables altogether.</p>
+
+<p>If you use the short variable declaration style assignment (<code>:=</code>), Go will reuse the variables for each iteration of the loop (only in scope inside the loop).</p>
+
+<h3>The range expression</h3>
+
+<p>On the right side of the range clause (<code>a</code> in the example above) you find what they call the <em>range expression</em>. It can hold any expression that evaluates to one of the following:</p>
+
+<ul>
+<li>array</li>
+<li>pointer to an array</li>
+<li>slice</li>
+<li>string</li>
+<li>map</li>
+<li>channels that allow receiving, e.g. <code>chan int</code> or <code>chan&lt;- int</code></li>
+</ul>
+
+<p><strong>The range expression is evaluated once before beginning the loop</strong>. Note that there is an exception to this rule: if you range over an array (or pointer to) and you only assign the index: then only <code>len(a)</code> is evaluated. Evaluating just <code>len(a)</code> means that the expression <code>a</code> may be evaluated at compile time and replaced with a constant by the compiler. <a href="https://golang.org/ref/spec#Length_and_capacity">The spec for the <code>len</code> function</a> explains:</p>
+
+<blockquote>
+<p>The expressions len(s) and cap(s) are constants if the type of s is an array or pointer to an array and the expression s does not contain channel receives or (non-constant) function calls; in this case s is not evaluated. Otherwise, invocations of len and cap are not constant and s is evaluated.</p>
+</blockquote>
+
+<p>Now <strong>what  exactly does &#34;evaluated&#34; mean?</strong> Unfortunatly I can&#39;t find this information in the spec. Of course I can guess that it means to execute the expression completely until it can not be reduced further. In any case, the high order bit here is that the range expression is evaluated <em>once</em> before the beginning of the loop. <strong>How would you evaluate an expression just once? By assigning it to a variable!</strong> Could that be what is happening here?</p>
+
+<p>Interestingly the spec mentions something specific about adding and removing to/from maps (no mention of slices):</p>
+
+<blockquote>
+<p>If map entries that have not yet been reached are removed during iteration, the corresponding iteration values will not be produced. If map entries are created during iteration, that entry may be produced during the iteration or may be skipped.</p>
+</blockquote>
+
+<p>I will come back to maps later.</p>
+
+<h2>Step 2: Data types supported by range</h2>
+
+<p>If we assume for a minute that the <em>range expression</em> gets assigned to a variable once before the start of the loop, what does that mean? The answer is that it depends on the data type, so let&#39;s have a closer look at the data types supported by <code>range</code>.</p>
+
+<p>Before we do that, do remember this: <strong>in Go, everything you assign, you copy</strong>. If you assign a pointer, you copy the pointer. If you assign a struct, you copy the struct. The same is true when passing arguments to a function. Anyway, here goes:</p>
+
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>syntactic sugar for</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>array</td>
+<td>the array</td>
+</tr>
+
+<tr>
+<td>string</td>
+<td>struct holding len + a pointer to the backing array</td>
+</tr>
+
+<tr>
+<td>slice</td>
+<td>struct holding len, cap + a pointer to the backing array</td>
+</tr>
+
+<tr>
+<td>map</td>
+<td>pointer to a struct</td>
+</tr>
+
+<tr>
+<td>channel</td>
+<td>pointer to a struct</td>
+</tr>
+</tbody>
+</table>
+
+<p>See the references at the bottom of this post to learn more about the internal structure of these data types.</p>
+
+<p>So what does this mean? These examples highlight some of the differences:</p>
+
+<pre><code>// copies the entire array
+var a [10]int
+acopy := a 
+
+// copies the slice header struct only, NOT the backing array
+s := make([]int, 10)
+scopy := s
+
+// copies the map pointer only
+m := make(map[string]int)
+mcopy := m
+</code></pre>
+
+<p>So if at the beginning of a <code>range</code> loop you would assign an array expression to a variable (to ensure it evaluates only once), you would be copying the entire array. We might be onto something here.</p>
+
+<h2>Step 3: Go compiler source code</h2>
+
+<p>Lazy as I am I simply Googled for the Go compiler source. The first thing I found was the GCC version of the compiler. The interesting bits, as far as the <code>range</code> clause is concerned, are in <code>statements.cc</code>, <a href="https://github.com/golang/gofrontend/blob/e387439bfd24d5e142874b8e68e7039f74c744d7/go/statements.cc#L5384">as in this comment</a>:</p>
+
+<pre><code>// Arrange to do a loop appropriate for the type.  We will produce
+//   for INIT ; COND ; POST {
+//           ITER_INIT
+//           INDEX = INDEX_TEMP
+//           VALUE = VALUE_TEMP // If there is a value
+//           original statements
+//   }
+</code></pre>
+
+<p>Now we&#39;re getting somewhere. Not entirely unsurprising, range loops are just syntactic sugar for C-style loops internally. The code has specific &#34;desugarings&#34; for earch type supported by range. For example, <a href="https://github.com/golang/gofrontend/blob/e387439bfd24d5e142874b8e68e7039f74c744d7/go/statements.cc#L5501">arrays</a>:</p>
+
+<pre><code>// The loop we generate:
+//   len_temp := len(range)
+//   range_temp := range
+//   for index_temp = 0; index_temp &lt; len_temp; index_temp++ {
+//           value_temp = range_temp[index_temp]
+//           index = index_temp
+//           value = value_temp
+//           original body
+//   }
+</code></pre>
+
+<p><a href="https://github.com/golang/gofrontend/blob/e387439bfd24d5e142874b8e68e7039f74c744d7/go/statements.cc#L5593">Slices</a>:</p>
+
+<pre><code>//   for_temp := range
+//   len_temp := len(for_temp)
+//   for index_temp = 0; index_temp &lt; len_temp; index_temp++ {
+//           value_temp = for_temp[index_temp]
+//           index = index_temp
+//           value = value_temp
+//           original body
+//   }
+</code></pre>
+
+<p>The common theme here is that</p>
+
+<ul>
+<li><strong>Everything is just a C-style for loop</strong></li>
+<li><strong>The thing you iterate over is assigned to a temporary variable</strong></li>
+</ul>
+
+<p>That said, this was in the GCC frontend. Most people I know use the gc compiler that comes with the Go distribution. It looks like that compiler does <a href="https://github.com/golang/go/blob/ea020ff3de9482726ce7019ac43c1d301ce5e3de/src/cmd/compile/internal/gc/range.go#L169">pretty much the same thing</a>.</p>
+
+<h2>What we know</h2>
+
+<ol>
+<li>Loop variables are reused and assigned to at each iteration.</li>
+<li>The range expression gets evaluated once before the loop starts by assigning to a variable.</li>
+<li>You can delete or add values to a map while iterating. Adds may or may not be visible in the loop.</li>
+</ol>
+
+<p>With this in hand, let&#39;s go back to the examples listed at the beginning of this post</p>
+
+<h2>Dave&#39;s tweet</h2>
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr"><a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> pop quiz: does this program terminate?<br/><br/>func main() {<br/>   v := []int{1, 2, 3}<br/>   for i := range v {<br/>       v = append(v, i)<br/>  }<br/>}</p>— Dαve Cheney (@davecheney) <a href="https://twitter.com/davecheney/status/819759166617108481">January 13, 2017</a></blockquote>
+
+<p>The reason this terminates is because it roughly translates to something like this:</p>
+
+<pre><code>for_temp := v
+len_temp := len(for_temp)
+for index_temp = 0; index_temp &lt; len_temp; index_temp++ {
+        value_temp = for_temp[index_temp]
+        index = index_temp
+        value = value_temp
+        v = append(v, index)
+}
+</code></pre>
+
+<p>We know slices are syntactic sugar for a struct holding a pointer to the backing array. The loop is iterating over <code>for_temp</code>, which is a copy of that struct taken before the start of the loop. Any changes the variable <code>v</code> itself are thus not relevant as it is another copy of the struct. The backing array is still shared as it is just a pointer in that struct, so things like <code>v[i] = 1</code> would work.</p>
+
+<h2>Damian&#39;s tweet</h2>
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Today&#39;s <a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> gotcha: the two-value range over an array does a copy.  Avoid by ranging over the pointer instead.<a href="https://t.co/SbK667osvA">https://t.co/SbK667osvA</a></p>— Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></blockquote>
+
+<p>Again, similar to the case above, the array gets assigned to a temporary variable before the loop starts, which in the case of an array means taking a copy of the entire array. The reason it works with a pointer is that in that case the pointer will be copied, not the array.</p>
+
+<h2>Extra: maps</h2>
+
+<p>In the spec we read that</p>
+
+<ul>
+<li>it is safe to add to and remove from maps in a range loop</li>
+<li>if you add an element it may or may not see it in an upcoming iteration</li>
+</ul>
+
+<p>Why does it work like that? For one, we know that maps are pointers to a struct. Before the loop starts, the pointer will be copied and not the internal data structure, hence why it is possible to add or remove keys inside the loop. This makes sense!</p>
+
+<p>So why might you not see the element you added in an upcoming iteration? Well if you know about how hash tables work, which is what a map really is, then you&#39;ll know that inside the backing array for a hash table the items are in no particular order. The item you add last might hash to index zero in the backing array. So if you assume that Go reserves the right to iterate over this array in any order, it is indeed impossible to predict whether or not you will see the item you added inside the loop. After all, you might already be past index zero in the backing array. This might not be exactly what happens in the case of the Go map, but it makes sense to leave the decision to the compiler writer for this reason.</p>
+
+<h2>References</h2>
+
+<ol>
+<li><a href="https://golang.org/ref/spec">The Go Programming Language Specification</a></li>
+<li><a href="https://blog.golang.org/go-slices-usage-and-internals">Go slices: usage and internals</a></li>
+<li><a href="https://research.swtch.com/godata">Go Data Structures</a></li>
+<li>Inside the map implementation: <a href="https://docs.google.com/presentation/d/1CxamWsvHReswNZc7N2HMV7WPFqS8pvlPVZcDegdC_T4/edit#slide=id.g153a5e64a5_1_0">slides</a> | <a href="https://www.youtube.com/watch?v=Tl7mi9QmLns">video</a></li>
+<li>Understanding nil: <a href="https://speakerdeck.com/campoy/understanding-nil">slides</a> | <a href="https://www.youtube.com/watch?v=ynoY2xz-F8s">video</a></li>
+<li><a href="https://golang.org/src/runtime/string.go">string source code</a></li>
+<li><a href="https://golang.org/src/runtime/slice.go">slice source code</a></li>
+<li><a href="https://golang.org/src/runtime/hashmap.go">map source code</a></li>
+<li><a href="https://golang.org/src/runtime/chan.go">channel source code</a></li>
+</ol>
+</div>
+        <div class="footer">
+          <em>Liking this? Follow me <a href="https://twitter.com/robbiev">on Twitter</a>.</em>
+        </div>
+      </div>
+    </div>
+  
+
+</body></html>
