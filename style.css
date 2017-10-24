@@ -40,7 +40,7 @@ table, td, th {
   border-collapse: collapse;
   border: 1px solid black;
   vertical-align: middle;
-  text-align: center;
+  text-align: left;
   padding: 5px;
 }
 
