@@ -186,7 +186,7 @@ So why might you not see the element you added in an upcoming iteration? Well if
 5. Understanding nil: [slides](https://speakerdeck.com/campoy/understanding-nil) | [video](https://www.youtube.com/watch?v=ynoY2xz-F8s) 
 6. [string source code](https://golang.org/src/runtime/string.go)
 7. [slice source code](https://golang.org/src/runtime/slice.go)
-8. [map source code](https://golang.org/src/runtime/hashmap.go)
+8. [map source code](https://github.com/golang/go/blob/ad7c32dc3b6d5edc3dd72b3e15c80dc4f4c27064/src/runtime/hashmap.go)
 9. [channel source code](https://golang.org/src/runtime/chan.go)
 
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
