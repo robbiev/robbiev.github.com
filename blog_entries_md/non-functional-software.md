@@ -14,7 +14,7 @@ Now, lately I've been thinking about this definition and how it relates to softw
 
 What I'm getting at is that even if your library does not depend on other libraries (in the [NPM](https://www.npmjs.com/) or [Maven](https://maven.apache.org/) sense), *you still have dependencies* that are often implicit to the environment and you should consider documenting them. If your software's documentation says that *"When I do X, it does Y"* but it doesn't say anything about creating 100,000 threads to do Y, then you may want to consider documenting that. **Your non-functional requirement (or lack thereof) is my non-functional behaviour**.
 
-Usually, however, the problem is much more subtle. A pet peeve of mine is that libraries often don't document **what thread a piece of code will run on**. What's wrong with you people? If you write a framework or your library accepts a callback function, in other words you control the entry point, then you absolutely need to document this.
+Usually, however, the problem is much more subtle. A pet peeve of mine is that libraries often don't document **what thread a piece of code will run on**. If you write a framework or your library accepts a callback function, in other words you control the entry point, then you absolutely need to document this.
 
 Similarly, when is something blocking and when is it non-blocking? Is it okay to be blocked for long? If not, what do I do instead? If it accesses a networked service, does it automatically reconnect? With back-off? These are all things I need to know to ensure luck is not a factor in successfully running your software.
 

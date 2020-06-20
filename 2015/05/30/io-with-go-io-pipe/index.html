@@ -16,9 +16,12 @@
         <div class="date">May 30, 2015</div>
         <div class="entry">
 
-        <p>I find that Go&#39;s <a href="https://golang.org/pkg/io/">I/O framework</a> is one of its major strengths:
- * The <a href="https://golang.org/pkg/io/#Reader"><code>io.Reader</code></a> and <a href="https://golang.org/pkg/io/#Writer"><code>io.Writer</code></a> abstractions make it easy to create composable programs
- * It&#39;s a great example of how to use interfaces in your own programs</p>
+        <p>I find that Go&#39;s <a href="https://golang.org/pkg/io/">I/O framework</a> is one of its major strengths:</p>
+
+<ul>
+<li>The <a href="https://golang.org/pkg/io/#Reader"><code>io.Reader</code></a> and <a href="https://golang.org/pkg/io/#Writer"><code>io.Writer</code></a> abstractions make it easy to create composable programs</li>
+<li>It&#39;s a great example of how to use interfaces in your own programs</li>
+</ul>
 
 <p>One of my recent discoveries is <a href="https://golang.org/pkg/io/#Pipe"><code>io.Pipe()</code></a>.</p>
 
@@ -63,7 +66,7 @@ func main() {
 }
 </code></pre>
 
-<p>This is easy to understand but we are <strong>unnecessarily copying data into a temporary buffer</strong> which is the kind of pattern that can become a problem at scale. <code>io.Pipe</code> allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:</p>
+<p><code>io.Pipe</code> allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:</p>
 
 <p><strong>AFTER</strong></p>
 
@@ -114,7 +117,7 @@ func main() {
 }
 </code></pre>
 
-<p>Of course in this trivial example it is overkill to use <code>io.Pipe</code>. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently <strong><code>io.Pipe</code> can help you reduce memory usage</strong>!</p>
+<p>Of course in this trivial example it is overkill to use <code>io.Pipe</code>.</p>
 </div>
         <div class="footer">
           <em>Liking this? Follow me <a href="https://twitter.com/robbiev">on Twitter</a></em>

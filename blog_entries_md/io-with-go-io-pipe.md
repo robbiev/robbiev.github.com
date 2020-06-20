@@ -2,6 +2,7 @@ I/O With Go: io.Pipe()
 May 30, 2015
 
 I find that Go's [I/O framework](https://golang.org/pkg/io/) is one of its major strengths:
+
  * The [`io.Reader`](https://golang.org/pkg/io/#Reader) and [`io.Writer`](https://golang.org/pkg/io/#Writer) abstractions make it easy to create composable programs
  * It's a great example of how to use interfaces in your own programs
 
@@ -49,7 +50,7 @@ func main() {
 }
 ```
 
-This is easy to understand but we are **unnecessarily copying data into a temporary buffer** which is the kind of pattern that can become a problem at scale. `io.Pipe` allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:
+`io.Pipe` allows you to eliminate the temporary buffer and connect the JSON encoder directly to the HTTP POST:
 
 **AFTER**
 
@@ -101,4 +102,4 @@ func main() {
 }
 ```
 
-Of course in this trivial example it is overkill to use `io.Pipe`. But when the buffers are getting larger and you have lots of goroutines doing this kind of stuff concurrently **`io.Pipe` can help you reduce memory usage**!
+Of course in this trivial example it is overkill to use `io.Pipe`.
