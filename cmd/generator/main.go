@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"io/ioutil"
@@ -167,6 +168,7 @@ func generateEntries(location string, indexEntries []indexEntry, postProc postPr
 		// read the blog entry
 		var titleText, dateText string
 		var bodyText bytes.Buffer
+		includeInIndex := true
 		{
 			p := filepath.Join(location, f.Name())
 			srcf, err := os.Open(p)
@@ -177,7 +179,8 @@ func generateEntries(location string, indexEntries []indexEntry, postProc postPr
 			// get the title
 			scan.Scan()
 			exitOnErr(scan.Err())
-			titleText = scan.Text()
+			includeInIndex = !strings.HasPrefix(scan.Text(), "-")
+			titleText = strings.TrimPrefix(scan.Text(), "-")
 
 			// get the date
 			scan.Scan()
@@ -251,6 +254,10 @@ func generateEntries(location string, indexEntries []indexEntry, postProc postPr
 			exitOnErr(err)
 			exitOnErr(html.Render(target, template))
 			target.Close()
+		}
+
+		if !includeInIndex {
+			continue
 		}
 
 		indexEntries = append(indexEntries, indexEntry{
