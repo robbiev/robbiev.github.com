@@ -17,9 +17,7 @@
         <div class="entry">
 
         <p>One definition of <strong>functional programming is to write programs that use <a href="http://steve-yegge.blogspot.co.uk/2006/03/execution-in-kingdom-of-nouns.html">a lot of verbs (functions) to manipulate a small amount of nouns (data structures)</a></strong>. Here I will explore the following question: <strong>can we write Java in this style</strong>?</p>
-
 <p>First you&#39;d get rid of classic <a href="https://en.wikipedia.org/wiki/Object-oriented_programming">OOP</a> &#34;objects&#34;. You know, the ones in which you mix state and functionality:</p>
-
 <pre><code class="language-java">class LightSwitch {
   private boolean on;
 
@@ -37,9 +35,7 @@
 }
 
 </code></pre>
-
 <p>An <strong>easy way</strong> to use a more functional style would be to use a <strong>static method instead of an instance method</strong>. Using static methods is an easy way to decouple the &#34;verb&#34; (the method) from the noun (the boolean). A static method will never be able to access its class&#39; (non-static) fields without receiving it as an argument, as it is associated with the class, not any instance. As an extra we can decide to make the data structure immutable - this will make it thread safe and will eliminate a train of thought when debugging the program (what if the switch was toggled to on here, turned off here...).</p>
-
 <pre><code class="language-java">class LightSwitch {
   private final boolean on;
 
@@ -59,9 +55,7 @@ class LightOps {
 }
 
 </code></pre>
-
 <p>The problem with this approach, however, is that <strong>your program gets less flexible as it grows</strong>. For example, let&#39;s imagine our light switch becomes audio-activated. When I clap my hands I want to toggle the light switch:</p>
-
 <pre><code class="language-java">class ClapDetector {
   static boolean isClapping(Audio audio) {
     // something crazy
@@ -79,11 +73,8 @@ class LightOps {
 }
 
 </code></pre>
-
 <p>Now what if we wanted to try different audio processing algorithms? Or test the toggling code in isolation? We can&#39;t. <strong>The dependency on the <code>ClapDetector</code> has been hard-coded</strong>. The only way to really solve this problem pre Java 8 is to switch back to using class instances and interfaces. It is possible to write in a functional style this way, but it is much harder; the temptation to add some &#34;state&#34; here and there will be great. Every function (methods in this case) would also have invisible parameters from the get-go: the instance fields of the surrounding class (dependencies, like <code>ClapDetector</code>).</p>
-
 <p>Noticed how I sneakily said <em>pre Java 8</em>. After using it for a month or so, I realised that the new <strong><a href="http://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html">default methods</a> feature is transforming interfaces into excellent holders of functions</strong>. They still can&#39;t hold instance data, but now they can hold method implementations. This pretty much transforms interface methods into functions. Also the combination of interface multiple inheritance and default methods turns out to be pretty powerful. Back to the example:</p>
-
 <pre><code class="language-java">interface ClapDetector {
   boolean ClapDetector$isClapping(Audio audio);
 }
@@ -106,13 +97,9 @@ interface LightOps extends ClapDetector {
 
 class LightOpsImpl extends LightOps, NaiveClapDetector {}
 </code></pre>
-
 <p>Notice the <strong>dependency injection using standard language constructs</strong>. All I had to do was to create a class in the end which wires up my dependencies the way I want. This actually reminds me of this <a href="http://www.infoq.com/presentations/post-functional-scala-clojure-haskell">excellent presentation</a> by <a href="https://twitter.com/djspiewak">Daniel Spiewak</a> in which he details how <a href="http://scala-lang.org/">Scala</a> traits are really &#34;modules&#34;. Java 8 interfaces are indeed very similar to Scala traits.</p>
-
 <p>For those still interested, I explored a slightly larger example of the ideas I described here: <a href="https://github.com/robbiev/mars-functional-java">https://github.com/robbiev/mars-functional-java</a></p>
-
 <p>Of course as to be expected, this style also has its flaws. Here are some that I currently see:</p>
-
 <ul>
 <li>All functions end up in the same namespace. For this reason I prefixed all functions with the interface name in my examples (<code>InterfaceName$methodName</code>)</li>
 <li>You can&#39;t easily have several different implementations of the same interface in an object graph</li>

@@ -17,7 +17,6 @@
         <div class="entry">
 
         <p>A couple of years ago I read <em><a href="https://www.amazon.com/dp/0812972155">Masters of Doom</a></em>, which tells the story of <a href="https://www.idsoftware.com">id Software</a> (of <a href="https://en.wikipedia.org/wiki/Doom_(series)">Doom</a> and <a href="https://en.wikipedia.org/wiki/Quake_(series)">Quake</a> fame). Programmer John Carmack had an interesting approach to keeping track of his daily work. From the book:</p>
-
 <blockquote>
 <p>As life in the war room pressed on, Carmack took it upon himself to let
 gamers know that, yes, id really was moving along with its work on Quake.
@@ -28,9 +27,7 @@ with the masses. But id’s fans had suffered months, years, of Romero’s
 unsubstantiated hyperbole, Carmack felt and it was time that they saw some
 hard data.</p>
 </blockquote>
-
 <p>To access Carmack&#39;s <code>.plan</code> you would use the <a href="https://en.wikipedia.org/wiki/Finger_protocol">finger protocol</a>. Here&#39;s what you would have seen when you viewed his <code>.plan</code> file, again from <em>Masters of Doom</em>:</p>
-
 <pre><code>[idsoftware.com]
 Login name: johnc In real life: John Carmack
 Directory: /raid/nardo/johnc Shell: /bin/csh
@@ -71,9 +68,7 @@ the things I have since fixed.
 + -1 ammo value on rockets
 + light up characters
 </code></pre>
-
 <p>Many more examples of <code>.plan</code> entries can be found <a href="https://github.com/ESWAT/john-carmack-plan-archive">online</a>. Here&#39;s one from <a href="https://github.com/floodyberry/carmack/blob/fc09ed3e7dde67b296a6840524a7c9ec8c36511a/plan_files/johnc_plan_19970812.txt">August 12 1997</a>:</p>
-
 <pre><code>* qe4 project on command line
 * qe4 rshcmd replacement
 * qe4 select face
@@ -90,9 +85,7 @@ no jump on lava floor?
 -game
 16 bit wall textures
 </code></pre>
-
 <p>Not all <code>.plan</code> entries contain lists of tasks - Some <code>.plan</code> entries are <a href="https://github.com/floodyberry/carmack/blob/fc09ed3e7dde67b296a6840524a7c9ec8c36511a/plan_files/johnc_plan_19990902.txt">opinion pieces</a> and some also include code snippets. I love <a href="https://github.com/floodyberry/carmack/blob/fc09ed3e7dde67b296a6840524a7c9ec8c36511a/page_tools/template/plan.html#L26-L41">the system he used for keeping track of work</a>:</p>
-
 <table>
 <thead>
 <tr>
@@ -100,42 +93,33 @@ no jump on lava floor?
 <th>Meaning</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>No prefix</td>
 <td>mentioned but not fixed or implemented on that day</td>
 </tr>
-
 <tr>
 <td>*</td>
 <td>completed on that day</td>
 </tr>
-
 <tr>
 <td>+</td>
 <td>completed on a later day</td>
 </tr>
-
 <tr>
 <td>-</td>
 <td>decided against on a later day</td>
 </tr>
 </tbody>
 </table>
-
 <p>What I love about it is the simplicity and that everything in easily <code>grep</code>-able plain text. Here are some examples I ran on just the August 12 1997 entry.</p>
-
 <p>Find all open tasks:</p>
-
 <pre><code>$ grep &#39;^[^*+-]&#39; .plan
 pendulum motion
 no jump on lava floor?
 16 bit wall textures
 </code></pre>
-
 <p>Find the last 5 completed tasks:</p>
-
 <pre><code>$ grep &#39;^\*&#39; .plan | head -5
 * qe4 project on command line
 * qe4 rshcmd replacement
@@ -143,18 +127,13 @@ no jump on lava floor?
 * qe4 avoid multiple autosaves
 * qe4 region selected brushes
 </code></pre>
-
 <p>Alternatively, assuming you keep everything in one file, you can simply open the file in your favourite editor and perform a search there.</p>
-
 <p>Here&#39;s what I&#39;m taking away from this:</p>
-
 <ol>
 <li>Keep track of things in a way that works for you (or your team).</li>
 <li>Have your data in a format that is easy to process.</li>
 </ol>
-
 <p>Something to consider before you install enterprise grade work tracking software. John M. Culkin said it best:</p>
-
 <blockquote>
 <p><strong>We shape our tools and, thereafter, our tools shape us.</strong></p>
 </blockquote>

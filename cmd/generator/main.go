@@ -12,7 +12,9 @@ import (
 
 	"io/ioutil"
 
-	"github.com/russross/blackfriday"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
+	goldmarkhtml "github.com/yuin/goldmark/renderer/html"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
@@ -299,18 +301,17 @@ func main() {
 	})
 
 	indexEntries = generateEntries(blogEntryLocationMD, indexEntries, func(b bytes.Buffer) bytes.Buffer {
-		commonHtmlFlags := 0
-		commonExtensions := 0 |
-			blackfriday.EXTENSION_TABLES |
-			blackfriday.EXTENSION_FENCED_CODE |
-			blackfriday.EXTENSION_AUTOLINK |
-			blackfriday.EXTENSION_STRIKETHROUGH |
-			blackfriday.EXTENSION_DEFINITION_LISTS
-		renderer := blackfriday.HtmlRenderer(commonHtmlFlags, "", "")
-		out := blackfriday.MarkdownOptions(b.Bytes(), renderer, blackfriday.Options{
-			Extensions: commonExtensions,
-		})
-		return *bytes.NewBuffer(out)
+		md := goldmark.New(
+			goldmark.WithExtensions(extension.GFM),
+			goldmark.WithRendererOptions(
+				goldmarkhtml.WithUnsafe(),
+			),
+		)
+		var buf bytes.Buffer
+		if err := md.Convert(b.Bytes(), &buf); err != nil {
+			panic(err)
+		}
+		return buf
 	})
 
 	sort.Sort(ByTimeDesc(indexEntries))
