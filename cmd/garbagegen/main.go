@@ -88,7 +88,7 @@ func exitOnErr(err error) {
 }
 
 func loadTemplate() (*html.Node, error) {
-	f, err := os.Open(filepath.Join(baseLocation, "cmd/generator/post-template.html"))
+	f, err := os.Open(filepath.Join(baseLocation, "cmd/garbagegen/post-template.html"))
 	exitOnErr(err)
 	defer f.Close()
 	return html.Parse(f)
@@ -103,7 +103,7 @@ func fakeBodyNode() *html.Node {
 }
 
 func createIndexEntry(title string, date string, path string) []*html.Node {
-	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "cmd/generator/index-entry-template.html"))
+	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "cmd/garbagegen/index-entry-template.html"))
 	exitOnErr(err)
 	entryHTML, err := html.ParseFragment(bytes.NewReader(b), fakeBodyNode())
 	exitOnErr(err)
@@ -144,7 +144,7 @@ func createIndexEntry(title string, date string, path string) []*html.Node {
 }
 
 func createIndexHTML(entries []indexEntry) *html.Node {
-	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "cmd/generator/index-template.html"))
+	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "cmd/garbagegen/index-template.html"))
 	exitOnErr(err)
 	entryHTML, err := html.Parse(bytes.NewReader(b))
 	exitOnErr(err)
