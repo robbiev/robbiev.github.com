@@ -1,6 +1,6 @@
 module github.com/robbiev/robbiev.github.com
 
-go 1.13
+go 1.18
 
 require (
 	github.com/yuin/goldmark v1.4.14
