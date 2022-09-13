@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	_ "embed"
 	"io/ioutil"
 
 	"github.com/yuin/goldmark"
@@ -18,6 +19,15 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
+
+//go:embed post-template.html
+var postTemplate []byte
+
+//go:embed index-entry-template.html
+var indexEntryTemplate []byte
+
+//go:embed index-template.html
+var indexTemplate []byte
 
 var baseLocation string
 
@@ -88,10 +98,7 @@ func exitOnErr(err error) {
 }
 
 func loadTemplate() (*html.Node, error) {
-	f, err := os.Open(filepath.Join(baseLocation, "cmd/garbagegen/post-template.html"))
-	exitOnErr(err)
-	defer f.Close()
-	return html.Parse(f)
+	return html.Parse(bytes.NewReader(postTemplate))
 }
 
 func fakeBodyNode() *html.Node {
@@ -103,9 +110,7 @@ func fakeBodyNode() *html.Node {
 }
 
 func createIndexEntry(title string, date string, path string) []*html.Node {
-	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "cmd/garbagegen/index-entry-template.html"))
-	exitOnErr(err)
-	entryHTML, err := html.ParseFragment(bytes.NewReader(b), fakeBodyNode())
+	entryHTML, err := html.ParseFragment(bytes.NewReader(indexEntryTemplate), fakeBodyNode())
 	exitOnErr(err)
 
 	for _, entry := range entryHTML {
@@ -144,9 +149,7 @@ func createIndexEntry(title string, date string, path string) []*html.Node {
 }
 
 func createIndexHTML(entries []indexEntry) *html.Node {
-	b, err := ioutil.ReadFile(filepath.Join(baseLocation, "cmd/garbagegen/index-template.html"))
-	exitOnErr(err)
-	entryHTML, err := html.Parse(bytes.NewReader(b))
+	entryHTML, err := html.Parse(bytes.NewReader(indexTemplate))
 	exitOnErr(err)
 
 	home := queryHTML(entryHTML, hasClass("home"))
