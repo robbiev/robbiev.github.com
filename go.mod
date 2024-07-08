@@ -1,8 +1,8 @@
 module github.com/robbiev/robbiev.github.com
 
-go 1.18
+go 1.22
 
 require (
-	github.com/yuin/goldmark v1.4.14
-	golang.org/x/net v0.0.0-20220909164309-bea034e7d591
+	github.com/yuin/goldmark v1.7.4
+	golang.org/x/net v0.27.0
 )
