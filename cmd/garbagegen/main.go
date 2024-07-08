@@ -33,18 +33,10 @@ var baseLocation string
 
 type queryFunc func(*html.Node) *html.Node
 
-type postProcFunc func(bytes.Buffer) bytes.Buffer
-
 type indexEntry struct {
 	html []*html.Node
 	time int64
 }
-
-type ByTimeDesc []indexEntry
-
-func (a ByTimeDesc) Len() int           { return len(a) }
-func (a ByTimeDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByTimeDesc) Less(i, j int) bool { return a[i].time > a[j].time }
 
 func hasClass(class string) queryFunc {
 	return func(n *html.Node) *html.Node {
@@ -95,10 +87,6 @@ func exitOnErr(err error) {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-}
-
-func loadTemplate() (*html.Node, error) {
-	return html.Parse(bytes.NewReader(postTemplate))
 }
 
 func fakeBodyNode() *html.Node {
@@ -162,7 +150,7 @@ func createIndexHTML(entries []indexEntry) *html.Node {
 	return entryHTML
 }
 
-func generateEntries(location string, indexEntries []indexEntry, postProc postProcFunc) []indexEntry {
+func generateEntries(location string, indexEntries []indexEntry, postProc func(bytes.Buffer) bytes.Buffer) []indexEntry {
 	files, err := ioutil.ReadDir(location)
 	exitOnErr(err)
 	for _, f := range files {
@@ -205,7 +193,7 @@ func generateEntries(location string, indexEntries []indexEntry, postProc postPr
 		}
 
 		// get the blog entry page template
-		template, err := loadTemplate()
+		template, err := html.Parse(bytes.NewReader(postTemplate))
 		exitOnErr(err)
 
 		// set the blog entry data in the blog entry page template
@@ -317,7 +305,9 @@ func main() {
 		return buf
 	})
 
-	sort.Sort(ByTimeDesc(indexEntries))
+	sort.Slice(indexEntries, func(i, j int) bool {
+		return indexEntries[i].time > indexEntries[j].time
+	})
 
 	targetFile := filepath.Join(baseLocation, "index.html")
 	target, err := os.Create(targetFile)
