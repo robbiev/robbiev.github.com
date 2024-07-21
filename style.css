@@ -77,9 +77,8 @@ h2 {
 }
 
 .header {
-  background-color: #303546;
+  background-color: #eb4471;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 1);
-  background-image: linear-gradient(to top, rgb(68, 79, 117) 47%, rgb(40, 43, 53) 100%);
 }
 
 .title {
