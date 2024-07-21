@@ -28,6 +28,18 @@ a {
   text-decoration: none;
 }
 
+a:link {
+  color: #008cba;
+}
+
+a:visited {
+  color: #005f75;
+}
+
+a:hover, a:active {
+  color: #eb4471; /* same as header */
+}
+
 img {  
   border: none;
   max-width: 100%;
@@ -112,14 +124,6 @@ h2 {
 
 .blog .footer {
   margin-top: 2em;
-}
-
-.home a:link {
-  color: black;
-}
-
-.home a:hover {
-  text-decoration: underline;
 }
 
 .home h2 {
