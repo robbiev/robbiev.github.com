@@ -17,8 +17,25 @@
         <div class="entry">
 
         <p>While they are very convenient, I always found Go&#39;s range loops a bit mystifying. I&#39;m not alone in this:</p>
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr"><a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> pop quiz: does this program terminate?<br/><br/>func main() {<br/>   v := []int{1, 2, 3}<br/>   for i := range v {<br/>       v = append(v, i)<br/>  }<br/>}</p>— Dαve Cheney (@davecheney) <a href="https://twitter.com/davecheney/status/819759166617108481">January 13, 2017</a></blockquote>
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Today&#39;s <a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> gotcha: the two-value range over an array does a copy.  Avoid by ranging over the pointer instead.<a href="https://t.co/SbK667osvA">https://t.co/SbK667osvA</a></p>— Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></blockquote>
+<hr/>
+<blockquote>
+<p>#golang pop quiz: does this program terminate?</p><p></p>
+<pre><code class="language-go">func main() {
+  v := []int{1, 2, 3}
+  for i := range v {
+      v = append(v, i)
+  }
+}
+</code></pre>
+<p>— Dαve Cheney (@davecheney) <a href="https://twitter.com/davecheney/status/819759166617108481">January 13, 2017</a></p>
+</blockquote>
+<hr/>
+<blockquote>
+<p>Today&#39;s #golang gotcha: the two-value range over an array does a copy. Avoid by ranging over the pointer instead.</p>
+<p><a href="https://play.golang.org/p/4b181zkB1O">https://play.golang.org/p/4b181zkB1O</a></p>
+<p>— Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></p>
+</blockquote>
+<hr/>
 <p>Now I could take these facts and try to remember them but it is likely I will forget. To have a better chance of remembering this I&#39;ll need to find out <em>why</em> the range loop behaves the way it does. So here goes.</p>
 <h2>Step 1: RTFM</h2>
 <p>The first order of business is to go read the range loop documentation. The Go language spec documents range loops in <a href="https://golang.org/ref/spec#For_statements">the for statement section</a> under &#34;For statements with <code>range</code> clause&#34;. I will not copy the entire spec here, but let me summarise some of the interesting bits.</p>
@@ -49,7 +66,7 @@
 <blockquote>
 <p>The expressions len(s) and cap(s) are constants if the type of s is an array or pointer to an array and the expression s does not contain channel receives or (non-constant) function calls; in this case s is not evaluated. Otherwise, invocations of len and cap are not constant and s is evaluated.</p>
 </blockquote>
-<p>Now <strong>what  exactly does &#34;evaluated&#34; mean?</strong> Unfortunatly I can&#39;t find this information in the spec. Of course I can guess that it means to execute the expression completely until it can not be reduced further. In any case, the high order bit here is that the range expression is evaluated <em>once</em> before the beginning of the loop. <strong>How would you evaluate an expression just once? By assigning it to a variable!</strong> Could that be what is happening here?</p>
+<p>Now <strong>what exactly does &#34;evaluated&#34; mean?</strong> Unfortunatly I can&#39;t find this information in the spec. Of course I can guess that it means to execute the expression completely until it can not be reduced further. In any case, the high order bit here is that the range expression is evaluated <em>once</em> before the beginning of the loop. <strong>How would you evaluate an expression just once? By assigning it to a variable!</strong> Could that be what is happening here?</p>
 <p>Interestingly the spec mentions something specific about adding and removing to/from maps (no mention of slices):</p>
 <blockquote>
 <p>If map entries that have not yet been reached are removed during iteration, the corresponding iteration values will not be produced. If map entries are created during iteration, that entry may be produced during the iteration or may be skipped.</p>
@@ -92,7 +109,7 @@
 <p>So what does this mean? These examples highlight some of the differences:</p>
 <pre><code>// copies the entire array
 var a [10]int
-acopy := a 
+acopy := a
 
 // copies the slice header struct only, NOT the backing array
 s := make([]int, 10)
@@ -148,7 +165,17 @@ mcopy := m
 </ol>
 <p>With this in hand, let&#39;s go back to the examples listed at the beginning of this post</p>
 <h2>Dave&#39;s tweet</h2>
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr"><a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> pop quiz: does this program terminate?<br/><br/>func main() {<br/>   v := []int{1, 2, 3}<br/>   for i := range v {<br/>       v = append(v, i)<br/>  }<br/>}</p>— Dαve Cheney (@davecheney) <a href="https://twitter.com/davecheney/status/819759166617108481">January 13, 2017</a></blockquote>
+<blockquote>
+<p>#golang pop quiz: does this program terminate?</p><p></p>
+<pre><code class="language-go">func main() {
+  v := []int{1, 2, 3}
+  for i := range v {
+      v = append(v, i)
+  }
+}
+</code></pre>
+<p>— Dαve Cheney (@davecheney) <a href="https://twitter.com/davecheney/status/819759166617108481">January 13, 2017</a></p>
+</blockquote>
 <p>The reason this terminates is because it roughly translates to something like this:</p>
 <pre><code>for_temp := v
 len_temp := len(for_temp)
@@ -161,7 +188,11 @@ for index_temp = 0; index_temp &lt; len_temp; index_temp++ {
 </code></pre>
 <p>We know slices are syntactic sugar for a struct holding a pointer to the backing array. The loop is iterating over <code>for_temp</code>, which is a copy of that struct taken before the start of the loop. Any changes the variable <code>v</code> itself are thus not relevant as it is another copy of the struct. The backing array is still shared as it is just a pointer in that struct, so things like <code>v[i] = 1</code> would work.</p>
 <h2>Damian&#39;s tweet</h2>
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Today&#39;s <a href="https://twitter.com/hashtag/golang?src=hash">#golang</a> gotcha: the two-value range over an array does a copy.  Avoid by ranging over the pointer instead.<a href="https://t.co/SbK667osvA">https://t.co/SbK667osvA</a></p>— Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></blockquote>
+<blockquote>
+<p>Today&#39;s #golang gotcha: the two-value range over an array does a copy. Avoid by ranging over the pointer instead.</p>
+<p><a href="https://play.golang.org/p/4b181zkB1O">https://play.golang.org/p/4b181zkB1O</a></p>
+<p>— Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></p>
+</blockquote>
 <p>Again, similar to the case above, the array gets assigned to a temporary variable before the loop starts, which in the case of an array means taking a copy of the entire array. The reason it works with a pointer is that in that case the pointer will be copied, not the array.</p>
 <h2>Extra: maps</h2>
 <p>In the spec we read that</p>
