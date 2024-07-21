@@ -1,5 +1,26 @@
+@font-face {
+  font-family: 'NCM Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local('NCM Regular'), url('/font/NewCM10-Regular.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'NCM Mono';
+  font-style: normal;
+  font-weight: normal;
+  src: local('NCM Mono'), url('/font/NewCMMono10-Regular.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'NCM Sans Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local('NCM Sans Bold'), url('/font/NewCMSans10-Bold.otf') format('opentype');
+}
+
 body, blockquote {
-  font-family: Georgia, serif;
+  font-family: 'NCM Regular', ui-serif, serif;
   margin: 0;
 }
 
@@ -18,7 +39,7 @@ blockquote {
 }
 
 pre, code {
-  font-family: Menlo, Consolas, Monaco, Inconsolata, "Courier New", monospace;
+  font-family: 'NCM Mono', ui-monospace, monospace;
   overflow: auto;
 }
 
@@ -43,7 +64,7 @@ table, td, th {
 }
 
 h1, h2 {
-  font-family: Arial, sans-serif;
+  font-family: 'NCM Sans Bold', ui-sans-serif, sans-serif;
 }
 
 h1 {
@@ -62,7 +83,7 @@ h2 {
 }
 
 .title {
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: 'NCM Sans Bold', ui-sans-serif, sans-serif;
   font-size: 1em;
   text-shadow: 2px 2px 4px #333;
   color: white;
