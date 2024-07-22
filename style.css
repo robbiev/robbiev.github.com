@@ -2,24 +2,25 @@
   font-family: 'NCM Regular';
   font-style: normal;
   font-weight: normal;
-  src: local('NCM Regular'), url('/font/NewCM10-Regular.otf') format('opentype');
+  src: url('/font/NewCM10-Regular.otf') format('opentype');
 }
 
 @font-face {
   font-family: 'NCM Mono';
   font-style: normal;
   font-weight: normal;
-  src: local('NCM Mono'), url('/font/NewCMMono10-Regular.otf') format('opentype');
+  src: url('/font/NewCMMono10-Regular.otf') format('opentype');
 }
 
 @font-face {
   font-family: 'NCM Sans Bold';
   font-style: normal;
   font-weight: normal;
-  src: local('NCM Sans Bold'), url('/font/NewCMSans10-Bold.otf') format('opentype');
+  src: url('/font/NewCMSans10-Bold.otf') format('opentype');
 }
 
 body, blockquote {
+  font-size: 1.2rem;
   font-family: 'NCM Regular', ui-serif, serif;
   margin: 0;
 }
@@ -29,11 +30,11 @@ a {
 }
 
 a:link {
-  color: #008cba;
+  //color: #008cba;
 }
 
 a:visited {
-  color: #005f75;
+  //color: #005f75;
 }
 
 a:hover, a:active {
@@ -56,7 +57,6 @@ pre, code {
 }
 
 pre {
-  font-size: 1em;
   padding: 10px;
   background: #fafafa;
   border: 1px solid #ccc;
@@ -81,11 +81,11 @@ h1, h2 {
 
 h1 {
   margin: 0;
-  font-size: 1.70em;
+  font-size: 1.70rem;
 }
 
 h2 {
-  font-size: 1.45em;
+  font-size: 1.45rem;
 }
 
 .header {
@@ -95,7 +95,7 @@ h2 {
 
 .title {
   font-family: 'NCM Sans Bold', ui-sans-serif, sans-serif;
-  font-size: 1em;
+  font-size: 1rem;
   text-shadow: 2px 2px 4px #333;
   color: white;
 }
@@ -108,25 +108,25 @@ h2 {
 
 .blog, .home {
   margin: 25px;
-  max-width: 50em;
+  max-width: 50rem;
 }
 
 .blog .date, .home .date {
-  margin-top: 0.25em;
-  font-size: 0.9em;
-  margin-bottom: 1.8em;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  margin-bottom: 1.8rem;
 }
 
 .blog .entry {
   margin: 0;
-  margin-top: 1em;
+  margin-top: 1rem;
 }
 
 .blog .footer {
-  margin-top: 2em;
+  margin-top: 2rem;
 }
 
 .home h2 {
   margin: 0;
-  font-size: 1.35em;
+  font-size: 1.35rem;
 }
