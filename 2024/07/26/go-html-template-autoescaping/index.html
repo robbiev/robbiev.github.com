@@ -1,0 +1,88 @@
+<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Go HTML Template Autoescaping</title>
+    <link rel="stylesheet" type="text/css" href="/style.css"/>
+  </head>
+  <body>
+    <div class="body">
+      <div class="header">
+        <div class="title">
+          <a href="/">Robbie&#39;s Garbage, Collected.</a>
+        </div>
+      </div>
+      <div class="blog">
+        <h1>Go HTML Template Autoescaping</h1>
+        <div class="date">July 26, 2024</div>
+        <div class="entry">
+
+        <p>Go&#39;s <a href="https://pkg.go.dev/html/template"><code>html/template</code></a> library does contextual autoescaping. The package tries to ensure any input data is safe to insert into the HTML. It transforms input data differently depending on whether you&#39;re inserting it as straight up text in the HTML, or JavaScript code inside a <code>&lt;script&gt;</code> tag.</p>
+<p>It turns out you can see what autoescaping <code>html/template</code> is doing under the hood. See the code below for a few examples.</p>
+<p>One thing I thought was interesting is that Go tries to detect whether to JavaScript escape the input <a href="https://github.com/golang/go/blob/d8c7230c97ca5639389917cc235175bfe2dc50ab/src/html/template/js.go#L450-L485">based on the mime type of the the <code>&lt;script&gt;</code> tag</a>.</p>
+<pre><code class="language-go">package main
+
+import (
+	&#34;bytes&#34;
+	&#34;html/template&#34;
+	&#34;testing&#34;
+)
+
+func TestRunTemplate(t *testing.T) {
+	type testData struct {
+		inputTemplate          string
+		expectedOutputTemplate string
+		input                  any
+		expectedOutput         any
+	}
+
+	runTest := func(test testData) {
+		t.Helper()
+		outputTemplate, output := runTemplate(t, test.inputTemplate, test.input)
+		if outputTemplate != test.expectedOutputTemplate {
+			t.Errorf(&#34;outputTemplate: got %s, want %s\n&#34;, outputTemplate, test.expectedOutputTemplate)
+		}
+		if output != test.expectedOutput {
+			t.Errorf(&#34;output: got %s, want %s\n&#34;, output, test.expectedOutput)
+		}
+	}
+
+	runTest(testData{
+		inputTemplate:          `&lt;script&gt;{{.}}&lt;/script&gt;`,
+		expectedOutputTemplate: `&lt;script&gt;{{. | _html_template_jsvalescaper}}&lt;/script&gt;`,
+		input:                  `&lt;body&gt;`,
+		expectedOutput:         `&lt;script&gt;&#34;\u003cbody\u003e&#34;&lt;/script&gt;`,
+	})
+	runTest(testData{
+		inputTemplate:          `&lt;script type=&#34;foo&#34;&gt;{{.}}&lt;/script&gt;`,
+		expectedOutputTemplate: `&lt;script type=&#34;foo&#34;&gt;{{. | _html_template_htmlescaper}}&lt;/script&gt;`,
+		input:                  `&lt;body&gt;`,
+		expectedOutput:         `&lt;script type=&#34;foo&#34;&gt;&amp;lt;body&amp;gt;&lt;/script&gt;`,
+	})
+	runTest(testData{
+		inputTemplate:          `&lt;script type=&#34;bar&#34;&gt;{{.}}&lt;/script&gt;`,
+		expectedOutputTemplate: `&lt;script type=&#34;bar&#34;&gt;{{. | _html_template_htmlescaper}}&lt;/script&gt;`,
+		input:                  template.HTML(`&lt;body&gt;`),
+		expectedOutput:         `&lt;script type=&#34;bar&#34;&gt;&lt;body&gt;&lt;/script&gt;`,
+	})
+}
+
+func runTemplate(t *testing.T, templateText string, input any) (outputTemplate, output string) {
+	tmpl := template.Must(template.New(&#34;&#34;).Parse(templateText))
+
+	var out bytes.Buffer
+	if err := tmpl.Execute(&amp;out, input); err != nil {
+		t.Fatalf(&#34;template.Execute: %v&#34;, err)
+	}
+
+	return tmpl.Tree.Root.String(), out.String()
+}
+</code></pre>
+</div>
+        <div class="footer">
+          <em>Liking this? Follow me <a href="https://mastodon.social/@robbiev">on Mastodon</a>.</em>
+        </div>
+      </div>
+    </div>
+  
+
+</body></html>
