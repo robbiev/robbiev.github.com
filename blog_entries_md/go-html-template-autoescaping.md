@@ -5,7 +5,7 @@ Go's [`html/template`](https://pkg.go.dev/html/template) library does contextual
 
 It turns out you can see what autoescaping `html/template` is doing under the hood. See the code below for a few examples.
 
-One thing I thought was interesting is that Go tries to detect whether to JavaScript escape the input [based on the mime type of the the `<script>` tag](https://github.com/golang/go/blob/d8c7230c97ca5639389917cc235175bfe2dc50ab/src/html/template/js.go#L450-L485).
+One thing I thought was interesting is that Go tries to detect whether to JavaScript escape the input [based on the mime type of the `<script>` tag](https://github.com/golang/go/blob/d8c7230c97ca5639389917cc235175bfe2dc50ab/src/html/template/js.go#L450-L485).
 
 ```go
 package main

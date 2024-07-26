@@ -18,7 +18,7 @@
 
         <p>Go&#39;s <a href="https://pkg.go.dev/html/template"><code>html/template</code></a> library does contextual autoescaping. The package tries to ensure any input data is safe to insert into the HTML. It transforms input data differently depending on whether you&#39;re inserting it as straight up text in the HTML, or JavaScript code inside a <code>&lt;script&gt;</code> tag.</p>
 <p>It turns out you can see what autoescaping <code>html/template</code> is doing under the hood. See the code below for a few examples.</p>
-<p>One thing I thought was interesting is that Go tries to detect whether to JavaScript escape the input <a href="https://github.com/golang/go/blob/d8c7230c97ca5639389917cc235175bfe2dc50ab/src/html/template/js.go#L450-L485">based on the mime type of the the <code>&lt;script&gt;</code> tag</a>.</p>
+<p>One thing I thought was interesting is that Go tries to detect whether to JavaScript escape the input <a href="https://github.com/golang/go/blob/d8c7230c97ca5639389917cc235175bfe2dc50ab/src/html/template/js.go#L450-L485">based on the mime type of the <code>&lt;script&gt;</code> tag</a>.</p>
 <pre><code class="language-go">package main
 
 import (
