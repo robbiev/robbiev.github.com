@@ -11,7 +11,6 @@ import (
 	"time"
 
 	_ "embed"
-	"io/ioutil"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -151,7 +150,7 @@ func createIndexHTML(entries []indexEntry) *html.Node {
 }
 
 func generateEntries(location string, indexEntries []indexEntry, postProc func(bytes.Buffer) bytes.Buffer) []indexEntry {
-	files, err := ioutil.ReadDir(location)
+	files, err := os.ReadDir(location)
 	exitOnErr(err)
 	for _, f := range files {
 		if f.IsDir() {
