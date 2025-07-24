@@ -1,40 +1,15 @@
-@font-face {
-  font-family: 'NCM Regular';
-  font-style: normal;
-  font-weight: normal;
-  src: url('/font/NewCM10-Regular.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'NCM Mono';
-  font-style: normal;
-  font-weight: normal;
-  src: url('/font/NewCMMono10-Regular.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'NCM Sans Bold';
-  font-style: normal;
-  font-weight: normal;
-  src: url('/font/NewCMSans10-Bold.otf') format('opentype');
+* {
+  font-size-adjust: 0.5;
 }
 
 body, blockquote {
   font-size: 1.2rem;
-  font-family: 'NCM Regular', ui-serif, serif;
+  font-family: ui-serif, serif;
   margin: 0;
 }
 
 a {
   text-decoration: none;
-}
-
-a:link {
-  //color: #008cba;
-}
-
-a:visited {
-  //color: #005f75;
 }
 
 a:hover, a:active {
@@ -52,7 +27,7 @@ blockquote {
 }
 
 pre, code {
-  font-family: 'NCM Mono', ui-monospace, monospace;
+  font-family: ui-monospace, monospace;
   overflow: auto;
 }
 
@@ -76,7 +51,7 @@ table, td, th {
 }
 
 h1, h2 {
-  font-family: 'NCM Sans Bold', ui-sans-serif, sans-serif;
+  font-family: ui-sans-serif, sans-serif;
 }
 
 h1 {
@@ -94,7 +69,7 @@ h2 {
 }
 
 .title {
-  font-family: 'NCM Sans Bold', ui-sans-serif, sans-serif;
+  font-family: ui-sans-serif, sans-serif;
   font-size: 1rem;
   text-shadow: 2px 2px 4px #333;
   color: white;

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"time"
 )
 
@@ -39,7 +40,11 @@ func main() {
 	fmt.Printf("blog root: %s\n", baseLocation)
 	go func() {
 		time.Sleep(time.Second)
-		cmd := exec.Command("open", "http://localhost:8080")
+		openCmd := "xdg-open"
+		if runtime.GOOS == "darwin" {
+			openCmd = "open"
+		}
+		cmd := exec.Command(openCmd, "http://localhost:8080")
 		err := cmd.Run()
 		if err != nil {
 			log.Fatal(err)
