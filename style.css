@@ -8,9 +8,13 @@ body, blockquote {
   margin: 0;
 }
 
+p { hyphens: auto; }
+
 a {
   text-decoration: none;
 }
+
+a.url { word-break: break-all; }
 
 a:hover, a:active {
   color: #eb4471; /* same as header */
