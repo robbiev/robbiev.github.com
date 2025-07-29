@@ -15,7 +15,7 @@ a {
 }
 
 a.url {
-  word-break: break-all !important;
+  word-break: break-all;
 }
 
 a:hover, a:active {

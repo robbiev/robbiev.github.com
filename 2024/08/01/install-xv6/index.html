@@ -21,7 +21,7 @@
 <p>I found some basic setup instructions at the bottom of the <a href="https://github.com/mit-pdos/xv6-riscv">README</a>:</p>
 <blockquote>
 <p>You will need a RISC-V &#34;newlib&#34; tool chain from
-<a href="https://github.com/riscv/riscv-gnu-toolchain">https://github.com/riscv/riscv-gnu-toolchain</a>, and qemu compiled for
+<a class="url" href="https://github.com/riscv/riscv-gnu-toolchain">https://github.com/riscv/riscv-gnu-toolchain</a>, and qemu compiled for
 riscv64-softmmu. Once they are installed, and in your shell
 search path, you can run &#34;make qemu&#34;.</p>
 </blockquote>
@@ -29,7 +29,7 @@ search path, you can run &#34;make qemu&#34;.</p>
 <blockquote>
 <p>If building a linux toolchain on a MacOS system, or on a Windows system using the Linux subsystem or cygwin, you must ensure that the filesystem is case-sensitive. A build on a case-insensitive filesystem will fail when building glibc because _.os and _.oS files will clobber each other during the build eventually resulting in confusing link errors.</p>
 </blockquote>
-<p>I&#39;m using macOS Sonoma for this, so I&#39;m using a case-insensitive file system (APFS). To avoid a world of pain here I instead decided to go with the prebuilt packages at <a href="https://github.com/riscv-software-src/homebrew-riscv">https://github.com/riscv-software-src/homebrew-riscv</a>.</p>
+<p>I&#39;m using macOS Sonoma for this, so I&#39;m using a case-insensitive file system (APFS). To avoid a world of pain here I instead decided to go with the prebuilt packages at <a class="url" href="https://github.com/riscv-software-src/homebrew-riscv">https://github.com/riscv-software-src/homebrew-riscv</a>.</p>
 <pre><code>brew tap riscv-software-src/riscv
 brew install riscv-tools
 brew install riscv64-elf-gdb
@@ -40,13 +40,13 @@ brew install riscv64-elf-gdb
 <h2>Debugger</h2>
 <p>I&#39;m starting the debugger by running <code>make CPUS=1 qemu-gdb</code> in one terminal, and then in another terminal run <code>riscv64-elf-gdb</code>. By running <code>riscv64-elf-gdb</code> from the Xv6 directory it will automatically load the <code>.gdbinit</code> file which sets up the debugger to connect to the QEMU instance.</p>
 <h2>Book</h2>
-<p>There&#39;s accompanying book for which the source can be found at <a href="https://github.com/mit-pdos/xv6-riscv-book">https://github.com/mit-pdos/xv6-riscv-book</a>. I&#39;ve built a recent PDF of the book using the following commands:</p>
+<p>There&#39;s accompanying book for which the source can be found at <a class="url" href="https://github.com/mit-pdos/xv6-riscv-book">https://github.com/mit-pdos/xv6-riscv-book</a>. I&#39;ve built a recent PDF of the book using the following commands:</p>
 <pre><code>brew install --cask mactex
 make
 </code></pre>
 <p>This outputs a <code>book.pdf</code> file in the repository directory.</p>
 <h2>Course</h2>
-<p>Xv6 is used in an MIT course on operating systems. The currently latest version of this course is available at <a href="https://pdos.csail.mit.edu/6.828/2023/index.html">https://pdos.csail.mit.edu/6.828/2023/index.html</a>. I also found a <a href="https://www.youtube.com/playlist?list=PLTsf9UeqkReZHXWY9yJvTwLJWYYPcKEqK">playlist with lecture recordings from 2020</a>.</p>
+<p>Xv6 is used in an MIT course on operating systems. The currently latest version of this course is available at <a class="url" href="https://pdos.csail.mit.edu/6.828/2023/index.html">https://pdos.csail.mit.edu/6.828/2023/index.html</a>. I also found a <a href="https://www.youtube.com/playlist?list=PLTsf9UeqkReZHXWY9yJvTwLJWYYPcKEqK">playlist with lecture recordings from 2020</a>.</p>
 </div>
         <div class="footer">
           <em>Liking this? Follow me <a href="https://mastodon.social/@robbiev">on Mastodon</a>.</em>

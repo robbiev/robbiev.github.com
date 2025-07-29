@@ -13,8 +13,11 @@ import (
 	_ "embed"
 
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/renderer"
 	goldmarkhtml "github.com/yuin/goldmark/renderer/html"
+	"github.com/yuin/goldmark/util"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
@@ -277,6 +280,29 @@ func getBlogRoot() string {
 	return dir
 }
 
+type autoLinkClassAdder struct{}
+
+func (r *autoLinkClassAdder) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+	reg.Register(ast.KindAutoLink, r.renderLink)
+}
+
+func (r *autoLinkClassAdder) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		w.WriteString("</a>")
+		return ast.WalkContinue, nil
+	}
+	n := node.(*ast.AutoLink)
+	if n.AutoLinkType == ast.AutoLinkEmail {
+		return ast.WalkContinue, nil
+	}
+	u := n.URL(source)
+	w.WriteString(`<a class="url" href="`)
+	w.Write(util.EscapeHTML(u))
+	w.WriteString(`">`)
+	w.Write(util.EscapeHTML(u))
+	return ast.WalkContinue, nil
+}
+
 func main() {
 	baseLocation = getBlogRoot()
 	fmt.Printf("blog root: %s\n", baseLocation)
@@ -295,6 +321,9 @@ func main() {
 			goldmark.WithExtensions(extension.GFM),
 			goldmark.WithRendererOptions(
 				goldmarkhtml.WithUnsafe(),
+				renderer.WithNodeRenderers(
+					util.Prioritized(&autoLinkClassAdder{}, 100),
+				),
 			),
 		)
 		var buf bytes.Buffer

@@ -32,7 +32,7 @@
 <hr/>
 <blockquote>
 <p>Today&#39;s #golang gotcha: the two-value range over an array does a copy. Avoid by ranging over the pointer instead.</p>
-<p><a href="https://play.golang.org/p/4b181zkB1O">https://play.golang.org/p/4b181zkB1O</a></p>
+<p><a class="url" href="https://play.golang.org/p/4b181zkB1O">https://play.golang.org/p/4b181zkB1O</a></p>
 <p>— Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></p>
 </blockquote>
 <hr/>
@@ -190,7 +190,7 @@ for index_temp = 0; index_temp &lt; len_temp; index_temp++ {
 <h2>Damian&#39;s tweet</h2>
 <blockquote>
 <p>Today&#39;s #golang gotcha: the two-value range over an array does a copy. Avoid by ranging over the pointer instead.</p>
-<p><a href="https://play.golang.org/p/4b181zkB1O">https://play.golang.org/p/4b181zkB1O</a></p>
+<p><a class="url" href="https://play.golang.org/p/4b181zkB1O">https://play.golang.org/p/4b181zkB1O</a></p>
 <p>— Damian Gryski (@dgryski) <a href="https://twitter.com/dgryski/status/816226596835225600">January 3, 2017</a></p>
 </blockquote>
 <p>Again, similar to the case above, the array gets assigned to a temporary variable before the loop starts, which in the case of an array means taking a copy of the entire array. The reason it works with a pointer is that in that case the pointer will be copied, not the array.</p>

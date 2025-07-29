@@ -98,7 +98,7 @@ interface LightOps extends ClapDetector {
 class LightOpsImpl extends LightOps, NaiveClapDetector {}
 </code></pre>
 <p>Notice the <strong>dependency injection using standard language constructs</strong>. All I had to do was to create a class in the end which wires up my dependencies the way I want. This actually reminds me of this <a href="http://www.infoq.com/presentations/post-functional-scala-clojure-haskell">excellent presentation</a> by <a href="https://twitter.com/djspiewak">Daniel Spiewak</a> in which he details how <a href="http://scala-lang.org/">Scala</a> traits are really &#34;modules&#34;. Java 8 interfaces are indeed very similar to Scala traits.</p>
-<p>For those still interested, I explored a slightly larger example of the ideas I described here: <a href="https://github.com/robbiev/mars-functional-java">https://github.com/robbiev/mars-functional-java</a></p>
+<p>For those still interested, I explored a slightly larger example of the ideas I described here: <a class="url" href="https://github.com/robbiev/mars-functional-java">https://github.com/robbiev/mars-functional-java</a></p>
 <p>Of course as to be expected, this style also has its flaws. Here are some that I currently see:</p>
 <ul>
 <li>All functions end up in the same namespace. For this reason I prefixed all functions with the interface name in my examples (<code>InterfaceName$methodName</code>)</li>
