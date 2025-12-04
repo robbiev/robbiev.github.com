@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -38,6 +40,11 @@ type queryFunc func(*html.Node) *html.Node
 type indexEntry struct {
 	html []*html.Node
 	time int64
+
+	// RSS
+	title string
+	date  string
+	link  string
 }
 
 func hasClass(class string) queryFunc {
@@ -89,6 +96,12 @@ func exitOnErr(err error) {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func joinURL(base string, elem ...string) string {
+	u, err := url.JoinPath(base, elem...)
+	exitOnErr(err)
+	return u
 }
 
 func fakeBodyNode() *html.Node {
@@ -234,7 +247,7 @@ func generateEntries(location string, indexEntries []indexEntry, postProc func(b
 		{
 			targetPathStart := t.Format("2006/01/02/")
 			fileNameWithoutExt := f.Name()[0 : len(f.Name())-len(filepath.Ext(f.Name()))]
-			targetPath = filepath.Join(targetPathStart, fileNameWithoutExt)
+			targetPath = path.Join(targetPathStart, fileNameWithoutExt)
 			targetDir = filepath.Join(baseLocation, targetPath)
 		}
 
@@ -256,8 +269,11 @@ func generateEntries(location string, indexEntries []indexEntry, postProc func(b
 		}
 
 		indexEntries = append(indexEntries, indexEntry{
-			html: createIndexEntry(titleText, dateText, targetPath+"/"),
-			time: t.Unix(),
+			html:  createIndexEntry(titleText, dateText, targetPath+"/"),
+			time:  t.Unix(),
+			title: titleText,
+			date:  dateText,
+			link:  targetPath + "/",
 		})
 	}
 	return indexEntries
@@ -303,6 +319,61 @@ func (r *autoLinkClassAdder) renderLink(w util.BufWriter, source []byte, node as
 	return ast.WalkContinue, nil
 }
 
+func generateRSSFeed(entries []indexEntry) string {
+	const (
+		baseURL = "https://garbagecollected.org"
+		title   = "Robbie's Garbage, Collected"
+	)
+
+	var rss strings.Builder
+	rss.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+	rss.WriteString(`<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">`)
+	rss.WriteString(`<channel>`)
+	rss.WriteString(`<title>`)
+	rss.WriteString(html.EscapeString(title))
+	rss.WriteString(`</title>`)
+	rss.WriteString(`<link>`)
+	rss.WriteString(html.EscapeString(baseURL))
+	rss.WriteString(`</link>`)
+	rss.WriteString(`<description>`)
+	rss.WriteString(html.EscapeString(title))
+	rss.WriteString(`</description>`)
+	rss.WriteString(`<atom:link href="`)
+	rss.WriteString(html.EscapeString(joinURL(baseURL, "rss.xml")))
+	rss.WriteString(`" rel="self" type="application/rss+xml"/>`)
+
+	for _, entry := range entries {
+		var pubDate string
+		{
+			t, err := time.Parse("January 2, 2006", entry.date)
+			if err != nil {
+				continue
+			}
+			pubDate = t.Format(time.RFC1123Z)
+		}
+
+		rss.WriteString(`<item>`)
+		rss.WriteString(`<title>`)
+		rss.WriteString(html.EscapeString(entry.title))
+		rss.WriteString(`</title>`)
+		rss.WriteString(`<link>`)
+		rss.WriteString(html.EscapeString(joinURL(baseURL, entry.link)))
+		rss.WriteString(`</link>`)
+		rss.WriteString(`<guid>`)
+		rss.WriteString(html.EscapeString(joinURL(baseURL, entry.link)))
+		rss.WriteString(`</guid>`)
+		rss.WriteString(`<pubDate>`)
+		rss.WriteString(pubDate)
+		rss.WriteString(`</pubDate>`)
+		rss.WriteString(`</item>`)
+	}
+
+	rss.WriteString(`</channel>`)
+	rss.WriteString(`</rss>`)
+
+	return rss.String()
+}
+
 func main() {
 	baseLocation = getBlogRoot()
 	fmt.Printf("blog root: %s\n", baseLocation)
@@ -343,4 +414,13 @@ func main() {
 	exitOnErr(err)
 	exitOnErr(html.Render(target, createIndexHTML(indexEntries)))
 	target.Close()
+
+	rssFile := filepath.Join(baseLocation, "rss.xml")
+	rssTarget, err := os.Create(rssFile)
+	fmt.Printf("generating: %s\n", rssFile)
+	exitOnErr(err)
+	rssContent := generateRSSFeed(indexEntries)
+	_, err = rssTarget.WriteString(rssContent)
+	exitOnErr(err)
+	rssTarget.Close()
 }
