@@ -109,6 +109,7 @@ a {
   padding-block: var(--space-sm);
   padding-inline: max(var(--space-md), calc((100% - var(--max-content-width)) / 2));
   position: relative;
+  min-height: 1.5rem;
 
   .title {
     font-family: var(--font-sans);
@@ -116,7 +117,6 @@ a {
     font-weight: bold;
     text-shadow: 2px 2px 4px #6b2fb0;
     color: #f0e6ff;
-    flex: 1;
 
     a {
       color: #f0e6ff;
@@ -147,7 +147,8 @@ a {
   user-select: none;
   display: flex;
   align-items: center;
-  position: relative;
+  position: absolute;
+  right: var(--space-md);
   z-index: 1;
 
   &:hover {
