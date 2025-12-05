@@ -106,10 +106,9 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-block: var(--space-sm);
+  padding-block: var(--space-md);
   padding-inline: max(var(--space-md), calc((100% - var(--max-content-width)) / 2));
   position: relative;
-  min-height: 1.5rem;
 
   .title {
     font-family: var(--font-sans);
