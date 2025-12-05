@@ -266,13 +266,11 @@ a {
     }
 
     img {
-      border: none;
       max-width: 100%;
       height: auto;
     }
 
     blockquote {
-      font-family: var(--font-serif);
       font-style: italic;
       margin: 0;
     }
