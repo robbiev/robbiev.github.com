@@ -40,33 +40,37 @@ let&#39;s see how it looks in terms of Unicode code units
 (<code>chars</code>) grouped by Unicode code point (individual &#34;building blocks&#34;
 of the word):</p>
 <table>
-  <tbody><tr>
-    <td>A</td>
-    <td>́</td>
-    <td>ﬃ</td>
-    <td>c</td>
-    <td>i</td>
-    <td>o</td>
-    <td>n</td>
-    <td>𝐚</td>
-    <td>ḋ</td>
-    <td>̣</td>
-    <td>o</td>
-  </tr>
-  <tr>
-    <td>0x0041</td>
-    <td>0x0301</td>
-    <td>0xFB03</td>
-    <td>0x0063</td>
-    <td>0x0069</td>
-    <td>0x006F</td>
-    <td>0x006E</td>
-    <td>0xD835 0xDC1A</td>
-    <td>0x1E0B</td>
-    <td>0x0323</td>
-    <td>0x006F</td>
-  </tr>
-</tbody></table>
+<thead>
+<tr>
+<th>A</th>
+<th>́</th>
+<th>ﬃ</th>
+<th>c</th>
+<th>i</th>
+<th>o</th>
+<th>n</th>
+<th>𝐚</th>
+<th>ḋ</th>
+<th>̣</th>
+<th>o</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x0041</td>
+<td>0x0301</td>
+<td>0xFB03</td>
+<td>0x0063</td>
+<td>0x0069</td>
+<td>0x006F</td>
+<td>0x006E</td>
+<td>0xD835 0xDC1A</td>
+<td>0x1E0B</td>
+<td>0x0323</td>
+<td>0x006F</td>
+</tr>
+</tbody>
+</table>
 <p>Initially you might have thought that
 &#34;Áﬃcion𝐚ḍ̇o&#34;.length()
 would have returned <code>11</code>. But it doesn&#39;t; it actually returns

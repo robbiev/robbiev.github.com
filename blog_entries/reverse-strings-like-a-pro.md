@@ -22,34 +22,9 @@ Take for example the word
 let's see how it looks in terms of Unicode code units
 (`chars`) grouped by Unicode code point (individual "building blocks"
 of the word):
-<table>
-  <tr>
-    <td>&#x0041;</td>
-    <td>&#x0301;</td>
-    <td>&#xFB03;</td>
-    <td>c</td>
-    <td>i</td>
-    <td>o</td>
-    <td>n</td>
-    <td>&#x1D41A;</td>
-    <td>&#x1E0B;</td>
-    <td>&#x0323;</td>
-    <td>o</td>
-  </tr>
-  <tr>
-    <td>0x0041</td>
-    <td>0x0301</td>
-    <td>0xFB03</td>
-    <td>0x0063</td>
-    <td>0x0069</td>
-    <td>0x006F</td>
-    <td>0x006E</td>
-    <td>0xD835 0xDC1A</td>
-    <td>0x1E0B</td>
-    <td>0x0323</td>
-    <td>0x006F</td>
-  </tr>
-</table>
+| &#x0041; | &#x0301; | &#xFB03; | c | i | o | n | &#x1D41A; | &#x1E0B; | &#x0323; | o |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0x0041 | 0x0301 | 0xFB03 | 0x0063 | 0x0069 | 0x006F | 0x006E | 0xD835 0xDC1A | 0x1E0B | 0x0323 | 0x006F |
 
 Initially you might have thought that
 "&#x0041;&#x0301;&#xFB03;cion&#x1D41A;&#x1E0B;&#x0323;o".length()

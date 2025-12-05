@@ -8,7 +8,7 @@ Apart from the title, I think the book reflects the fact that I'm a no-nonsense 
 
 So, months later I look on [Amazon](http://www.amazon.com/Google-Guice-Lightweight-Dependency-Firstpress/dp/1590599977), and see this:
 
-<img src="/img/better_together.png" align="middle" border="0" height="113" width="594" />
+![Books better together](/img/better_together.png)
 
 You can get my humble work together with the best Java book ever. That alone was so worth it :-)
 

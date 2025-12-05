@@ -11,4 +11,4 @@ A while ago a saw [this interesting post](http://antirez.com/news/43) on reliabi
 
 You can also think of this as a definition of quality. Quality is just something that people perceive. Your users perceive it based on their expectations,  the analyst perceives it based on their specification and you as a programmer perceive it based on your software. This is worth capturing for future reference, so I decided to create the following diagram. What is quality?
 
-<img src="/img/quality.png"/>
+![Quality diagram](/img/quality.png)

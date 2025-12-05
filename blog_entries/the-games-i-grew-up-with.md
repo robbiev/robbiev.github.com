@@ -4,10 +4,8 @@ Yesterday I discovered (and watched) [Indie Game](http://www.imdb.com/title/tt19
 
 It amazed me how the games featured in the film ([Braid](http://en.wikipedia.org/wiki/Braid_(video_game)), [Super Meat Boy](http://en.wikipedia.org/wiki/Super_Meat_Boy) and [Fez](http://en.wikipedia.org/wiki/Fez_(video_game))) are a lot like the video games I played when I was a kid. They reminded me of countless hours I spent with the first computer we owned, our trusty 80286 with 1MB of RAM and 20MB of hard disk space, numbers that sound medieval by today's standards.
 
-<figure>
-    <img src="/img/commander_robbie.jpg"></img>
-    <figcaption>Me and my cousin playing Commander Keen</figcaption>
-</figure>
+![Me and my cousin playing Commander Keen](/img/commander_robbie.jpg)\
+*Me and my cousin playing Commander Keen*
 
 Today I spent some time compiling a list of the games I enjoyed most back then, some of which I completely forgot they even existed!
 

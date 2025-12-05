@@ -29,8 +29,8 @@ It becomes immediately obvious why, eg, ^[ becomes escape. Or that the alphabet 
 <p>In the terminal you can type these control characters by holding the <code>CTRL</code> (control characters, get it?) key in combination with another key. For example, as many experienced vim users know pressing <code>CTRL+[</code> in the terminal (which is <code>^[</code> in <a href="https://en.wikipedia.org/wiki/Caret_notation">caret notation</a>) is the same as pressing the <code>ESC</code> key. <strong>But why is the escape key triggered by the <code>[</code> character? Why not another character?</strong> This is the insight soneil shares with us.</p>
 <p>Remember that ASCII is a 7 bit encoding. Let&#39;s say the following:</p>
 <ul>
-<li>The first two bits denote the group of the character (2<sup>2</sup> so 4 possible values)</li>
-<li>The remaining five bits describe a character (2<sup>5</sup> so 32 possible values)</li>
+<li>The first two bits denote the group of the character (2^2 so 4 possible values)</li>
+<li>The remaining five bits describe a character (2^5 so 32 possible values)</li>
 </ul>
 <p>In the linked table, which I reproduce below, the four groups are represented by the columns and the rows represent the values.</p>
 <table>

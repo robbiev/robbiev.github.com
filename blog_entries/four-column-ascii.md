@@ -14,8 +14,8 @@ In the terminal you can type these control characters by holding the `CTRL` (con
 
 Remember that ASCII is a 7 bit encoding. Let's say the following:
 
-* The first two bits denote the group of the character (2<sup>2</sup> so 4 possible values)
-* The remaining five bits describe a character (2<sup>5</sup> so 32 possible values)
+* The first two bits denote the group of the character (2^2 so 4 possible values)
+* The remaining five bits describe a character (2^5 so 32 possible values)
 
 In the linked table, which I reproduce below, the four groups are represented by the columns and the rows represent the values.
 
