@@ -19,7 +19,30 @@
         <div class="date">June 7, 2007</div>
         <div class="entry">
 
-        <strong>UPDATE</strong>: The reset thing turned out to be a bad idea, I created <a href="http://code.google.com/p/google-guice/issues/detail?id=114">simple Thread Scope</a> instead. If you somehow seem to need a reset, consider <a href="http://code.google.com/p/google-guice/wiki/Scopes">this</a>.<br/><br/>Ever wanted to use <a href="http://code.google.com/p/google-guice/" title="Google Guice">Guice</a>&#39;s request scope outside of a web application? Try out <a href="http://code.google.com/p/google-guice/issues/attachment?aid=-4210064442097121541&amp;name=GuiceThreadScope.txt">my thread scope implementation</a> and let me know what you think. <a href="http://code.google.com/p/google-guice/issues/detail?id=100">Cast your vote</a> if you want to see this scope added to Guice.<br/><br/>Here&#39;s an example. Create a <code>Module</code> that looks like this:<br/><pre><br/>Injector i = Guice.createInjector(new Module() {<br/>    public void configure(Binder binder) {<br/>        binder.bindScope(ThreadScoped.class, CustomScopes.THREAD);<br/>        binder.bind(ThreadCache.class).in(Scopes.SINGLETON);<br/>        // add your custom classes<br/>        binder.bind(SomeClass.class).in(CustomScopes.THREAD);<br/>    }<br/>});</pre><br/>Each thread is automatically initialized for the scope. To reset it, use the <code>ThreadCache</code>:<br/><pre>@Inject private ThreadCache threadCache<br/>public void someMethod() {<br/>    try {<br/>        // do stuff in thread scope<br/>    } finally {<br/>        threadCache.reset();<br/>    }<br/>}</pre><br/>I&#39;m thinking about loading this scope&#39;s initialization code lazily (so that you&#39;ll need to execute <code>threadCache.start()</code> or something like that). It currently doesn&#39;t matter for me and the memory overhead is low anyway, but what do you think?<br/><br/>PS: only use field injection for examples ;-)
+        <p><strong>UPDATE</strong>: The reset thing turned out to be a bad idea, I created <a href="http://code.google.com/p/google-guice/issues/detail?id=114">simple Thread Scope</a> instead. If you somehow seem to need a reset, consider <a href="http://code.google.com/p/google-guice/wiki/Scopes">this</a>.</p>
+<p>Ever wanted to use <a href="http://code.google.com/p/google-guice/">Guice</a>&#39;s request scope outside of a web application? Try out <a href="http://code.google.com/p/google-guice/issues/attachment?aid=-4210064442097121541&amp;name=GuiceThreadScope.txt">my thread scope implementation</a> and let me know what you think. <a href="http://code.google.com/p/google-guice/issues/detail?id=100">Cast your vote</a> if you want to see this scope added to Guice.</p>
+<p>Here&#39;s an example. Create a <code>Module</code> that looks like this:</p>
+<pre><code>Injector i = Guice.createInjector(new Module() {
+    public void configure(Binder binder) {
+        binder.bindScope(ThreadScoped.class, CustomScopes.THREAD);
+        binder.bind(ThreadCache.class).in(Scopes.SINGLETON);
+        // add your custom classes
+        binder.bind(SomeClass.class).in(CustomScopes.THREAD);
+    }
+});
+</code></pre>
+<p>Each thread is automatically initialized for the scope. To reset it, use the <code>ThreadCache</code>:</p>
+<pre><code>@Inject private ThreadCache threadCache
+public void someMethod() {
+    try {
+        // do stuff in thread scope
+    } finally {
+        threadCache.reset();
+    }
+}
+</code></pre>
+<p>I&#39;m thinking about loading this scope&#39;s initialization code lazily (so that you&#39;ll need to execute <code>threadCache.start()</code> or something like that). It currently doesn&#39;t matter for me and the memory overhead is low anyway, but what do you think?</p>
+<p>PS: only use field injection for examples ;-)</p>
 </div>
         <div class="footer">
           <em>Liking this? Follow me: <a href="/rss.xml">RSS</a>, <a href="https://bsky.app/profile/robbiev.me">Bluesky</a>, <a href="https://mastodon.social/@robbiev">Mastodon</a>.</em>

@@ -55,8 +55,8 @@ func main() {
 	}
 	title := strings.Join(os.Args[1:], " ")
 
-	// Create a new file in blog_entries_md/title-slug.md
-	file, err := os.Create(filepath.Join(baseLocation, "blog_entries_md", fmt.Sprintf("%s.md", slugify(title))))
+	// Create a new file in blog_entries/title-slug.md
+	file, err := os.Create(filepath.Join(baseLocation, "blog_entries", fmt.Sprintf("%s.md", slugify(title))))
 	exitOnErr(err)
 	defer file.Close()
 

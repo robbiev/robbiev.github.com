@@ -378,14 +378,9 @@ func main() {
 	baseLocation = getBlogRoot()
 	fmt.Printf("blog root: %s\n", baseLocation)
 
-	blogEntryLocation := filepath.Join(baseLocation, "blog_entries")
-	blogEntryLocationMD := filepath.Join(baseLocation, "blog_entries_md")
+	blogEntryLocationMD := filepath.Join(baseLocation, "blog_entries")
 
 	var indexEntries []indexEntry
-
-	indexEntries = generateEntries(blogEntryLocation, indexEntries, func(b bytes.Buffer) bytes.Buffer {
-		return b
-	})
 
 	indexEntries = generateEntries(blogEntryLocationMD, indexEntries, func(b bytes.Buffer) bytes.Buffer {
 		md := goldmark.New(

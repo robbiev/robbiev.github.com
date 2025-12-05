@@ -19,7 +19,34 @@
         <div class="date">August 23, 2008</div>
         <div class="entry">
 
-        Easily the #1 mistake people make when using <a href="http://code.google.com/p/warp-persist">Warp Persist</a> is they forget to start their <span style="font-family:Courier New;">PersistenceService</span>, which is the API that abstracts the Hibernate <span style="font-family:Courier New;">SessionFactory</span>. The plan for the next release is to start the <span style="font-family:Courier New;">PersistenceService</span> lazily. Thus the first time a <span style="font-family:Courier New;">SessionFactory</span> gets accessed, we will load it for you if you haven&#39;t called <span style="font-family:Courier New;">PersistenceService.start()</span> yet. This is a simple change that will help you get your project going in no time.<br/><br/>The obvious choice for implementing this type of lazy loading as of Java 5 is <a href="http://en.wikipedia.org/wiki/Double-checked_locking">Double-Checked Locking</a>. But after coding it up for the Hibernate <span style="font-family:Courier New;">SessionFactory</span>, I realized I would have to do the same for the JPA and DB4O support. Given the relative complexity of DCL, that kind of sucks.<br/><br/>But then I remembered something <a href="https://twitter.com/crazybob">Bob Lee</a> said on <a href="https://www.twitter.com">Twitter</a> the other day:<br/><br/><img class="size-full wp-image-42" src="/img/picture-1.png" alt="Bob Lee on Twitter" width="480" height="71"/><br/><br/>The man has a point.<br/><br/>I decided to roll our own utility class to lazily load object references. So I opened up the bible (<a href="http://java.sun.com/docs/books/effective/">Effective Java, 2nd edition</a>) to look for the original pattern, and there it was. Page 283:<br/><span style="font-family:Courier New;"><br/>private volatile FieldType field;<br/>FieldType getField() {<br/>  FieldType result = field;<br/>  if (result == null) {  // First check (no locking)<br/>    synchronized(this) {<br/>      result = field;<br/>      if (result == null) // Second check (with locking)<br/>        field = result = computeFieldValue();<br/>    }<br/>  }<br/>  return result;<br/>}<br/></span><br/>Scary. Now, there is no way we can reduce the size of that code much, but as it turns out we can make it a lot simpler to use. I called it <a href="http://code.google.com/p/warp-persist/source/browse/trunk/warp-persist/src/com/wideplay/warp/util/LazyReference.java?r=128">LazyReference</a>, here&#39;s an example usage:<br/><span style="font-family:Courier New;"><br/>private final LazyReference&lt;SessionFactory&gt; sessionFactory =<br/>  LazyReference.of(new Provider&lt;SessionFactory&gt;() {<br/>    public SessionFactory get() {<br/>      // code to create SessionFactory<br/>    }<br/>});<br/></span><br/>To use this code, you just call <span style="font-family:Courier New;">sessionFactory.get()</span>, and it will handle the lazy loading for you. Even if you are a Java master, there is no reason for you to repeat that complicated DCL code ever again. Enjoy!
+        <p>Easily the #1 mistake people make when using <a href="http://code.google.com/p/warp-persist">Warp Persist</a> is they forget to start their <code>PersistenceService</code>, which is the API that abstracts the Hibernate <code>SessionFactory</code>. The plan for the next release is to start the <code>PersistenceService</code> lazily. Thus the first time a <code>SessionFactory</code> gets accessed, we will load it for you if you haven&#39;t called <code>PersistenceService.start()</code> yet. This is a simple change that will help you get your project going in no time.</p>
+<p>The obvious choice for implementing this type of lazy loading as of Java 5 is <a href="http://en.wikipedia.org/wiki/Double-checked_locking">Double-Checked Locking</a>. But after coding it up for the Hibernate <code>SessionFactory</code>, I realized I would have to do the same for the JPA and DB4O support. Given the relative complexity of DCL, that kind of sucks.</p>
+<p>But then I remembered something <a href="https://twitter.com/crazybob">Bob Lee</a> said on <a href="https://www.twitter.com">Twitter</a> the other day:</p>
+<p><img src="/img/picture-1.png" alt="Bob Lee on Twitter"/></p>
+<p>The man has a point.</p>
+<p>I decided to roll our own utility class to lazily load object references. So I opened up the bible (<a href="http://java.sun.com/docs/books/effective/">Effective Java, 2nd edition</a>) to look for the original pattern, and there it was. Page 283:</p>
+<pre><code>private volatile FieldType field;
+FieldType getField() {
+  FieldType result = field;
+  if (result == null) {  // First check (no locking)
+    synchronized(this) {
+      result = field;
+      if (result == null) // Second check (with locking)
+        field = result = computeFieldValue();
+    }
+  }
+  return result;
+}
+</code></pre>
+<p>Scary. Now, there is no way we can reduce the size of that code much, but as it turns out we can make it a lot simpler to use. I called it <a href="http://code.google.com/p/warp-persist/source/browse/trunk/warp-persist/src/com/wideplay/warp/util/LazyReference.java?r=128">LazyReference</a>, here&#39;s an example usage:</p>
+<pre><code>private final LazyReference&lt;SessionFactory&gt; sessionFactory =
+  LazyReference.of(new Provider&lt;SessionFactory&gt;() {
+    public SessionFactory get() {
+      // code to create SessionFactory
+    }
+});
+</code></pre>
+<p>To use this code, you just call <code>sessionFactory.get()</code>, and it will handle the lazy loading for you. Even if you are a Java master, there is no reason for you to repeat that complicated DCL code ever again. Enjoy!</p>
 </div>
         <div class="footer">
           <em>Liking this? Follow me: <a href="/rss.xml">RSS</a>, <a href="https://bsky.app/profile/robbiev.me">Bluesky</a>, <a href="https://mastodon.social/@robbiev">Mastodon</a>.</em>

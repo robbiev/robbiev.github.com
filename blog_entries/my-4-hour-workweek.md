@@ -1,0 +1,19 @@
+-My 4 Hour Workweek
+July 7, 2007
+After Scott Hanselman [got me interested](http://www.hanselman.com/blog/HanselminutesPodcast70InterviewWithTimothyFerrissAuthorOfThe4HourWorkweek.aspx), I watched <a target="_blank" href="http://www.fourhourworkweek.com/blog/2007/06/04/robert-scoble-interviews-tim-ferriss-productivity-e-mail-fasts-gtd-and-more/" title="Robert Scoble interviews Timothy Ferris">this</a> interview the other week in which Robert Scoble interviews [Timothy Ferris](http://www.fourhourworkweek.com/). Basically Tim preaches a different lifestyle: live by the numbers. Somehow this stuff always interests me, as I've always been keen on self-improvement. Of course I'm always skeptical when it comes to overhyped books or whatever. I'm probably the only guy in the world who didn't read the Da Vinci Code. I did watch the movie, though. Jesus saves, passes to Moses, scoooores! [Right](https://web-beta.archive.org/web/20160409093115/bash.org/?229070)?
+
+<a href="http://www.fourhourworkweek.com/" title="Timothy Ferriss' book">![4 hour workweek](/img/51FSaZaVA3L._SS500_.jpg)</a>
+
+One thing that I should do more often is what Robert Scoble said (I think it's from the <a target="_blank" href="http://www.davidco.com/" title="Getting Things Done">GTD</a> book) about **writing things down**. If there's something you need to think of, get it out of your head by writing it down. And make sure that it comes back to haunt you at the appropriate time. That's where paper starts to get messy and cell phone calendars become useful. I started paying attention to it, and it is GREAT for peace of mind!
+
+I'm also thinking about putting up a whiteboard here because it's great for mind organizing. Often an idea is gone by the time you found your cell phone or a pen and a piece of paper. And even more often I know that I wrote something down, but where? :-) And if it's right there on your wall, you can't ignore it. Tasks that you postpone are right there on the wall, and will keep haunting you until you handle them.
+
+On the other hand, Tim's whole numbers thing might be useful to a lot of people, but I don't buy it yet. I do like his goal-driven approach. On his website, for example, you'll find some templates of what he calls a [dreamline](http://fourhourworkweek.com/lifestyle-costing/). I don't have a printer (shame on me), but I'm putting that dreamline thing on my list, right after "buy printer" and "get whiteboard".
+
+Listening to podcasts and wasting time on the internet finally paid off. Which reminds me that I really need an iPod so I can stop wasting time at home, and spend some of my traffic jam time catching up with interesting podcasts. If I waste time, I might as well learn some stuff in the process.
+
+Let's finish up with a quote:\
+**D:** I'm putting that on my TODO\
+**J:** Is there anything on your DONE?
+
+It's funny because it's true.
